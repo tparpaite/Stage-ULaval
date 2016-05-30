@@ -28,21 +28,6 @@ from deap import creator
 from deap import tools
 from deap import gp
 
-# Recuperation des donnees du fichier csv
-reader = csv.reader(open("../res/skillcraft/skillcraft.csv",'r'), delimiter=',')
-reader.next()
-points = list(reader)
-
-# Partitionnement grossier d'un jeu de donnees test
-# Les donnees restantes dans la liste points correspondent a la partition d'apprentissage
-test = []
-
-for i in range(len(points)/3):
-    ind = random.randint(0, len(points)-1)
-    test.append(points[ind])
-    del points[ind]
-
-
 # Pour le classement des joueurs en fonction de leur style de jeu :
 # Total de 18 variables d'entree
 # Input variables :
@@ -68,31 +53,19 @@ for i in range(len(points)/3):
 # Output variable :
 # 2. LeagueIndex: Bronze, Silver, Gold, Platinum, Diamond, Master, GrandMaster, and Professional leagues coded 1-8 (Ordinal) 
 
-# Define new functions
-def protectedDiv(left, right):
-    try:
-        return left / right
-    except ZeroDivisionError:
-        return 1
+# Recuperation des donnees du fichier csv
+reader = csv.reader(open("../res/skillcraft/skillcraft.csv",'r'), delimiter=',')
+reader.next()
+points = list(reader)
 
-pset = gp.PrimitiveSet("MAIN", 18)
-pset.addPrimitive(operator.add, 2)
-pset.addPrimitive(operator.sub, 2)
-pset.addPrimitive(operator.mul, 2)
-pset.addPrimitive(protectedDiv, 2)
-pset.addPrimitive(operator.neg, 1)
-pset.addPrimitive(math.cos, 1)
-pset.addPrimitive(math.sin, 1)
-pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
+# Partitionnement grossier d'un jeu de donnees test
+# Les donnees restantes dans la liste points correspondent a la partition d'apprentissage
+test = []
 
-creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
-
-toolbox = base.Toolbox()
-toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=2)
-toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
-toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-toolbox.register("compile", gp.compile, pset=pset)
+for i in range(len(points)/3):
+    ind = random.randint(0, len(points)-1)
+    test.append(points[ind])
+    del points[ind]
 
 
 def testPerformance(individual, points):
@@ -123,24 +96,6 @@ def meanSquarredError(func, points):
     # On arrondit sinon suraprentissage
     res = round(sqerrors / len(points), 10)
     return res,
-   
-
-def evalSymbReg(points, individual):
-    # Transform the tree expression in a callable function
-    func = toolbox.compile(expr=individual)
-    # Evaluate the mean squared error between the expression
-    # and data in points
-
-    return meanSquarredError(func, points)
-
-toolbox.register("evaluate", evalSymbReg, points)
-toolbox.register("select", tools.selTournament, tournsize=3)
-toolbox.register("mate", gp.cxOnePoint)
-toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
-toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
-
-toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
-toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
 
 
 def display_graph(expr):
@@ -188,10 +143,60 @@ def display_stats(logbook):
     plt.show()
 
 
+#########################
+# Suite du code generique
+#########################
+
+
+# Define new functions
+def protectedDiv(left, right):
+    try:
+        return left / right
+    except ZeroDivisionError:
+        return 1
+
+pset = gp.PrimitiveSet("MAIN", 18)
+pset.addPrimitive(operator.add, 2)
+pset.addPrimitive(operator.sub, 2)
+pset.addPrimitive(operator.mul, 2)
+pset.addPrimitive(protectedDiv, 2)
+pset.addPrimitive(operator.neg, 1)
+pset.addPrimitive(math.cos, 1)
+pset.addPrimitive(math.sin, 1)
+pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
+
+creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
+
+toolbox = base.Toolbox()
+toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=2)
+toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
+toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+toolbox.register("compile", gp.compile, pset=pset)
+   
+
+def evalSymbReg(points, individual):
+    # Transform the tree expression in a callable function
+    func = toolbox.compile(expr=individual)
+    # Evaluate the mean squared error between the expression
+    # and data in points
+
+    return meanSquarredError(func, points)
+
+toolbox.register("evaluate", evalSymbReg, points)
+toolbox.register("select", tools.selTournament, tournsize=3)
+toolbox.register("mate", gp.cxOnePoint)
+toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
+toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
+
+toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
+toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
+
+
 def main():
     random.seed(318)
 
-    pop = toolbox.population(n=500)
+    pop = toolbox.population(n=600)
     hof = tools.HallOfFame(1)
     
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
@@ -202,12 +207,12 @@ def main():
     mstats.register("min", numpy.min)
     mstats.register("max", numpy.max)
 
-    pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 50, stats=mstats,
-                                   halloffame=hof, verbose=True)
+    # pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 50, stats=mstats,
+    #                               halloffame=hof, verbose=True)
     
     # Using HARM-GP
-    #pop, log = gp.harm(pop, toolbox, 0.5, 0.1, 50, alpha=0.05, beta=10, gamma=0.25, rho=0.9, stats=mstats,
-    #                               halloffame=hof, verbose=True)
+    pop, log = gp.harm(pop, toolbox, 0.5, 0.1, 50, alpha=0.05, beta=10, gamma=0.25, rho=0.9, stats=mstats,
+                                   halloffame=hof, verbose=True)
 
     # Validation du modele sur l'ensemble d'apprentissage (en %)
     print("\nBase d'apprentissage : " + str(testPerformance(hof[0], points) * 100) + " %")

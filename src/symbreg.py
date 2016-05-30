@@ -28,6 +28,56 @@ from deap import creator
 from deap import tools
 from deap import gp
 
+def display_graph(expr):
+    nodes, edges, labels = gp.graph(expr)
+
+    g = nx.Graph()
+    g.add_nodes_from(nodes)
+    g.add_edges_from(edges)
+
+    # On recupere la position des noeuds
+    pos =  nx.drawing.nx_agraph.graphviz_layout(g, prog="dot")
+
+    nx.draw_networkx_nodes(g, pos)
+    nx.draw_networkx_edges(g, pos)
+    nx.draw_networkx_labels(g, pos, labels)
+    plt.show()
+
+
+def display_stats(logbook):
+    # Recuperation des donnes a partir du logbook
+    gen = logbook.select("gen")
+    fit_mins = logbook.chapters["fitness"].select("min")
+    size_avgs = logbook.chapters["size"].select("avg")
+
+    # On cree la courbe qui represente l'evolution de la fitness en fonction des generations
+    fig, ax1 = plt.subplots()
+    line1 = ax1.plot(gen, fit_mins, "b-", label="Minimum Fitness")
+    ax1.set_xlabel("Generation")
+    ax1.set_ylabel("Fitness", color="b")
+    for tl in ax1.get_yticklabels():
+        tl.set_color("b")
+
+    # On cree la courbe qui represente l'evolution de la taille des individus en fonction des generations 
+    ax2 = ax1.twinx()
+    line2 = ax2.plot(gen, size_avgs, "r-", label="Average Size")
+    ax2.set_ylabel("Size", color="r")
+    for tl in ax2.get_yticklabels():
+        tl.set_color("r")
+
+    # Affichage graphique
+    lns = line1 + line2
+    labs = [l.get_label() for l in lns]
+    ax1.legend(lns, labs, loc="upper center")
+
+    plt.show()
+
+
+#########################
+# Suite du code generique
+#########################
+
+
 # Define new functions
 def protectedDiv(left, right):
     try:
@@ -73,22 +123,6 @@ toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_v
 toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
 
 
-def display_graph(expr):
-    nodes, edges, labels = gp.graph(expr)
-
-    g = nx.Graph()
-    g.add_nodes_from(nodes)
-    g.add_edges_from(edges)
-
-    # On recupere la position des noeuds
-    pos =  nx.drawing.nx_agraph.graphviz_layout(g, prog="dot")
-
-    nx.draw_networkx_nodes(g, pos)
-    nx.draw_networkx_edges(g, pos)
-    nx.draw_networkx_labels(g, pos, labels)
-    plt.show()
-
-
 def main():
     random.seed(318)
 
@@ -106,11 +140,11 @@ def main():
     pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 40, stats=mstats,
                                    halloffame=hof, verbose=True)
     
-    # print the most fitnessed tree
-    print(hof[0])
-
-    # display the most fitnessed tree
+    # Affiche l'arbre representant le modele le plus proche
     display_graph(hof[0])
+
+    # Affiche les statistiques au cours de l'evolution
+    display_stats(log)
 
     return pop, log, hof
 
