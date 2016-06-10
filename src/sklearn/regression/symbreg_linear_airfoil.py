@@ -4,9 +4,12 @@ import numpy as np
 from sklearn import datasets
 from sklearn import linear_model
 from sklearn import cross_validation
+from sklearn import metrics
+
 
 # Recuperation des donnees du fichier csv
-airfoil = np.genfromtxt("../../res/airfoil/airfoil.dat", delimiter='\t', skip_header=1)
+path = "../../../res/airfoil/airfoil.dat"
+airfoil = np.genfromtxt(path, delimiter='\t', skip_header=1)
 airfoil_X = airfoil[:, :5]
 airfoil_y = airfoil[:, -1:]
 
@@ -15,10 +18,10 @@ regr = linear_model.LinearRegression()
 
 # Using 5-fold-cross validation
 predicted = cross_validation.cross_val_predict(regr, airfoil_X, airfoil_y, cv=5)
-scores = cross_validation.cross_val_score(regr, airfoil_X, airfoil_y, scoring="mean_squared_error", cv=5)
+mse = metrics.mean_squared_error(airfoil_y, predicted)
 
 # Fitness
-print("MSE moyen : %0.2f " % - scores.mean())
+print("MSE : %0.2f " % mse)
 
 # Plot outputs
 fig, ax = plt.subplots()

@@ -7,24 +7,25 @@ from sklearn import cross_validation
 from sklearn import metrics
 
 # Recuperation des donnees du fichier csv
-compactiv = np.genfromtxt("../../res/compactiv/compactiv.data", delimiter=' ')
-compactiv_X = compactiv[:, :21]
-compactiv_y = compactiv[:, [21]]
+path = "../../../res/skillcraft/skillcraft.csv"
+skillcraft = np.genfromtxt(path, delimiter=',', skip_header=1)
+skillcraft_X = skillcraft[:, 2:]
+skillcraft_y = skillcraft[:, [1]]
 
 # Create linear regression object
 regr = linear_model.LinearRegression()
 
 # Using 5-fold-cross validation
-predicted = cross_validation.cross_val_predict(regr, compactiv_X, compactiv_y, cv=5)
-mse = metrics.mean_squared_error(compactiv_y, predicted)
+predicted = cross_validation.cross_val_predict(regr, skillcraft_X, skillcraft_y, cv=5)
+mse = metrics.mean_squared_error(skillcraft_y, predicted)
 
 # Fitness
 print("MSE : %0.2f " % mse)
 
 # Plot outputs
 fig, ax = plt.subplots()
-ax.scatter(compactiv_y, predicted)
-ax.plot([compactiv_y.min(), compactiv_y.max()], [compactiv_y.min(), compactiv_y.max()], 'k--', lw=4)
+ax.scatter(skillcraft_y, predicted)
+ax.plot([skillcraft_y.min(), skillcraft_y.max()], [skillcraft_y.min(), skillcraft_y.max()], 'k--', lw=4)
 ax.set_xlabel('Measured')
 ax.set_ylabel('Predicted')
 plt.show()

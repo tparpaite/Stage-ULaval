@@ -16,17 +16,43 @@
 import operator
 import math
 import random
+import numpy 
 import matplotlib.pyplot as plt
 import networkx as nx
 import pygraphviz as pgv
-
-import numpy
+import tensorflow as tf
 
 from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
 from deap import gp
+from deapToTensorflow import primitivetree_to_tensor
+
+# Creation des donnees artificielles pour test avec TensorFlow
+data_train = []
+for i in range(-10,10):
+    x = i/10.0
+    y = x**4 + x**3 + x**2 + x
+    data_train.append([x, y])
+
+data_test = []
+for i in range(-50,50):
+    x = i/10.0
+    y = x**4 + x**3 + x**2 + x
+    data_test.append([x, y])
+
+data_train = numpy.array(data_train)
+data_test = numpy.array(data_test)
+
+trX = data_train[:, :1]
+trY = data_train[:, -1:]
+teX = data_test[:, :1]
+teY = data_test[:, -1:]
+
+# Association of loaded data and input/output nodes
+dictTrain = {"X": trX, "Y": trY}
+dictTest = {"X": teX, "Y": teY}
 
 
 ###################################################
@@ -34,17 +60,19 @@ from deap import gp
 ###################################################
 
 
-# points : prediction
-# func : measured
-def meanSquarredError(func, points):
+# data : measured
+# func : prediction
+def meanSquarredError(func, data):
     sqerrors = 0
-    for p in points:
-        inputs = p  
-        outputs = p**4 + p**3 + p**2 + p
-        sqerrors += (outputs - func(inputs))**2
+
+    inputs = data[:, :1]
+    outputs = data[:, -1:]
+
+    for x, y in zip(inputs, outputs):
+        sqerrors += (y - func(x))**2
 
     # On arrondit sinon suraprentissage
-    res = round(sqerrors / len(points), 10)
+    res = round(sqerrors / data.size, 10)
     return res
 
 
@@ -152,7 +180,7 @@ toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=2)
 toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
-toolbox.register("evaluate", evalSymbReg, points=[x/10. for x in range(-10,10)])
+toolbox.register("evaluate", evalSymbReg, points=data_train)
 toolbox.register("select", tools.selTournament, tournsize=3)
 toolbox.register("mate", gp.cxOnePoint)
 toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
@@ -177,9 +205,6 @@ def main():
     mstats.register("min", numpy.min)
     mstats.register("max", numpy.max)
 
-    # pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 40, stats=mstats,
-    #                                halloffame=hof, verbose=True)
-
     # Using HARM-GP
     pop, log = gp.harm(pop, toolbox, 0.5, 0.1, 40, alpha=0.05, beta=10, gamma=0.25, 
                        rho=0.9, stats=mstats, halloffame=hof, verbose=True)
@@ -201,12 +226,23 @@ def main():
     print "[8]", best_individual[8].name
     print "[9]", best_individual[9].name
     print "[10]", best_individual[10].name
+    print "[11]", best_individual[11].name
+    print "[12]", best_individual[12].name
 
     # Affiche l'arbre DEAP representant le modele le plus proche
     display_graph(hof[0])
 
     # Affiche les statistiques au cours de l'evolution
     display_stats(log)
+
+    # TensorFlow exploitation
+    tensor = primitivetree_to_tensor(best_individual)
+
+    # We compile the graph
+    sess = tf.Session()
+
+    # Write graph infos to the specified file
+    writer = tf.train.SummaryWriter("/tmp/tflogs_computation", sess.graph, flush_secs=10)
 
     return pop, log, hof
 

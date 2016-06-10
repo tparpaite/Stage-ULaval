@@ -200,13 +200,13 @@ def main():
     #                               halloffame=hof, verbose=True)
 
     # Using HARM-GP
-    pop, log = gp.harm(pop, toolbox, 0.5, 0.1, 50, alpha=0.05, beta=10, gamma=0.25, rho=0.9, stats=mstats,
-                                   halloffame=hof, verbose=True)
+    pop, log = gp.harm(pop, toolbox, 0.5, 0.1, 50, alpha=0.05, beta=10, gamma=0.25, rho=0.9,
+                       stats=mstats, halloffame=hof, verbose=True)
 
     # Validation du modele sur l'ensemble d'apprentissage (en %)
     print("\nBase d'apprentissage : " + str(testPerformance(hof[0], points) * 100) + " %")
 
-    # Validation du modele sur l'ensemble d'apprentissage (en %)
+    # Validation du modele sur l'ensemble de tests (en %)
     print("Base de validation (test) : " + str(testPerformance(hof[0], test) * 100) + " %")
 
     # Affiche l'arbre representant le modele le plus proche

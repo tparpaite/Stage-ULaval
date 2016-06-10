@@ -2,20 +2,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from sklearn import datasets
-from sklearn import linear_model
+from sklearn import svm
 from sklearn import cross_validation
 from sklearn import metrics
 
 # Recuperation des donnees du fichier csv
-spacega = np.genfromtxt("../../res/space_ga/space_ga.csv", delimiter=',')
+path = "../../../res/spacega/spacega.csv"
+spacega = np.genfromtxt(path, delimiter=',')
 spacega_X = spacega[:, 1:]
 spacega_y = spacega[:, [0]]
 
 # Create linear regression object
-regr = linear_model.LinearRegression()
+svr = svm.SVR(kernel='linear', C=1)
 
 # Using 5-fold-cross validation
-predicted = cross_validation.cross_val_predict(regr, spacega_X, spacega_y, cv=5)
+predicted = cross_validation.cross_val_predict(svr, spacega_X, spacega_y, cv=5)
 mse = metrics.mean_squared_error(spacega_y, predicted)
 
 # Fitness

@@ -7,24 +7,25 @@ from sklearn import cross_validation
 from sklearn import metrics
 
 # Recuperation des donnees du fichier csv
-abalone = np.genfromtxt("../../res/abalone/abalone.data", delimiter=',')
-abalone_X = abalone[:, 1:8]
-abalone_y = abalone[:, -1:]
+path = "../../../res/spacega/spacega.csv"
+spacega = np.genfromtxt(path, delimiter=',')
+spacega_X = spacega[:, 1:]
+spacega_y = spacega[:, [0]]
 
 # Create linear regression object
 regr = linear_model.LinearRegression()
 
 # Using 5-fold-cross validation
-predicted = cross_validation.cross_val_predict(regr, abalone_X, abalone_y, cv=5)
-mse = metrics.mean_squared_error(abalone_y, predicted)
+predicted = cross_validation.cross_val_predict(regr, spacega_X, spacega_y, cv=5)
+mse = metrics.mean_squared_error(spacega_y, predicted)
 
 # Fitness
 print("MSE : %0.2f " % mse)
 
 # Plot outputs
 fig, ax = plt.subplots()
-ax.scatter(abalone_y, predicted)
-ax.plot([abalone_y.min(), abalone_y.max()], [abalone_y.min(), abalone_y.max()], 'k--', lw=4)
+ax.scatter(spacega_y, predicted)
+ax.plot([spacega_y.min(), spacega_y.max()], [spacega_y.min(), spacega_y.max()], 'k--', lw=4)
 ax.set_xlabel('Measured')
 ax.set_ylabel('Predicted')
 plt.show()

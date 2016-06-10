@@ -1,9 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
+from sklearn import grid_search
 from sklearn import datasets
 from sklearn import linear_model
 from sklearn import cross_validation
 from sklearn import svm
+from sklearn import metrics
 
 # Load the boston dataset
 boston = datasets.load_boston()
@@ -11,14 +14,16 @@ boston_X = boston.data
 boston_y = boston.target
 
 # Create linear regression object
-regr = linear_model.LinearRegression()
+# svr = svm.SVR(kernel='rbf', gamma=0.1) gamma = 1/d
+# svr = svm.SVR(kernel='poly', C=1, degree=2)
+svr = svm.SVR(kernel='linear', C=1)
 
 # Using 5-fold-cross validation
-predicted = cross_validation.cross_val_predict(regr, boston_X, boston_y, cv=5)
-scores = cross_validation.cross_val_score(regr, boston_X, boston_y, scoring="mean_squared_error", cv=5)
+predicted = cross_validation.cross_val_predict(svr, boston_X, boston_y, cv=5, n_jobs=-1)
+mse = metrics.mean_squared_error(boston_y, predicted)
 
 # Fitness
-print("MSE moyen : %0.2f " % - scores.mean())
+print("MSE : %0.2f " % mse)
 
 # Plot outputs
 fig, ax = plt.subplots()
