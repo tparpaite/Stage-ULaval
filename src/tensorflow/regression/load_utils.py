@@ -34,3 +34,49 @@ def loadOnlinepop():
                                                            test_size=0.33, random_state=42)
     trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
     return trX, trY, teX, teY
+
+
+def loadCompactiv():
+    # Recuperation des donnees du fichier csv
+    compactiv = np.genfromtxt("../../../res/compactiv/compactiv.data", delimiter=' ')
+    dataX = compactiv[:, :21]
+    dataY = compactiv[:, -1:]
+    
+    trX, teX, trY, teY = cross_validation.train_test_split(dataX, dataY, 
+                                                           test_size=0.33, random_state=42)
+    trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
+    return trX, trY, teX, teY   
+
+
+def loadSpacega():
+    # Recuperation des donnees du fichier csv
+    path = "../../../res/spacega/spacega.csv"
+    spacega = np.genfromtxt(path, delimiter=',')
+    dataX = spacega[:, 1:]
+    dataY = spacega[:, [0]]
+
+    trX, teX, trY, teY = cross_validation.train_test_split(dataX, dataY, 
+                                                           test_size=0.33, random_state=42)
+    trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
+    return trX, trY, teX, teY
+
+
+def loadPolynome():
+    # Creation des donnees artificielles representant un polynome
+    dataX = []
+    dataY = []
+
+    for i in range(-10,10):
+        x = i/10.0
+        y = x**4 + x**3 + x**2 + x
+        dataX.append([x])
+        dataY.append([y])
+
+    # Convertion en numpy array
+    dataX = np.array(dataX)
+    dataY = np.array(dataY)
+
+    trX, teX, trY, teY = cross_validation.train_test_split(dataX, dataY, 
+                                                           test_size=0.33, random_state=42)
+    trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
+    return trX, trY, teX, teY

@@ -1,19 +1,18 @@
 import tensorflow as tf
 import numpy as np
 import time
-from load_utils import loadBoston
+from load_utils import loadCompactiv
 
 # Hyperparameters 
 
-BATCH_SIZE = 50
+BATCH_SIZE = 100
 NUM_EPOCHS = 100
-NB_VAR = 13
+NB_VAR = 21
 NB_NEURON = 800
 LEARNING_RATE = 0.001
 
-
 # Load dataset
-trX, trY, teX, teY = loadBoston()
+trX, trY, teX, teY = loadCompactiv()
 
 
 # Create input and output nodes
@@ -52,7 +51,7 @@ loss_test_disp = tf.scalar_summary("MSE (test)", loss)
 sess = tf.Session()
 
 # Write graph infos to the specified file
-writer = tf.train.SummaryWriter("/tmp/tflogs_boston", sess.graph, flush_secs=10)
+writer = tf.train.SummaryWriter("/tmp/tflogs_airfoil", sess.graph, flush_secs=10)
 
 # We must initialize the values of our variables
 init = tf.initialize_all_variables()

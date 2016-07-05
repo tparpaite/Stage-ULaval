@@ -96,7 +96,7 @@ from deap import gp
 
 
 # Recuperation des donnees du fichier csv
-reader = csv.reader(open("../res/OnlineNewsPopularity/OnlineNewsPopularity.csv",'r'), delimiter=',')
+reader = csv.reader(open("../../res/OnlineNewsPopularity/OnlineNewsPopularity.csv",'r'), delimiter=',')
 reader.next()
 points = list(reader)
 

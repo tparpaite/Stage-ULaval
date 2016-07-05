@@ -1,20 +1,18 @@
 import tensorflow as tf
 import numpy as np
 import time
-from load_utils import loadBoston
+from load_utils import loadSpacega
 
 # Hyperparameters 
 
 BATCH_SIZE = 50
-NUM_EPOCHS = 150
-NB_VAR = 13
-NB_NEURON = 800
+NUM_EPOCHS = 100
+NB_VAR = 6
+NB_NEURON = 100
 LEARNING_RATE = 0.001
 
-
 # Load dataset
-trX, trY, teX, teY = loadAirfoil()
-trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
+trX, trY, teX, teY = loadSpacega()
 
 
 # Create input and output nodes
@@ -35,7 +33,8 @@ pred = tf.matmul(pred, w_output)
 # Define the loss function (MSE)
 loss = tf.reduce_mean(tf.square(pred - Y))
 # Use a gradient descent as optimization method
-train_op = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(loss)
+# train_op = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(loss)
+train_op = tf.train.RMSPropOptimizer(LEARNING_RATE, decay=0.9, momentum=0.1, epsilon=1e-10, use_locking=False, name='RMSProp').minimize(loss)
 
 
 # Graph infos
@@ -52,7 +51,7 @@ loss_test_disp = tf.scalar_summary("MSE (test)", loss)
 sess = tf.Session()
 
 # Write graph infos to the specified file
-writer = tf.train.SummaryWriter("/tmp/tflogs_boston", sess.graph, flush_secs=10)
+writer = tf.train.SummaryWriter("/tmp/tflogs_airfoil", sess.graph, flush_secs=10)
 
 # We must initialize the values of our variables
 init = tf.initialize_all_variables()

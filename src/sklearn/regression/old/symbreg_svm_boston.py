@@ -14,9 +14,9 @@ boston_X = boston.data
 boston_y = boston.target
 
 # Create linear regression object
-# svr = svm.SVR(kernel='rbf', gamma=0.1) gamma = 1/d
+svr = svm.SVR(kernel='rbf', C=1, gamma=0.1) #gamma = 1/d
 # svr = svm.SVR(kernel='poly', C=1, degree=2)
-svr = svm.SVR(kernel='linear', C=1)
+# svr = svm.SVR(kernel='linear', C=1)
 
 # Using 5-fold-cross validation
 predicted = cross_validation.cross_val_predict(svr, boston_X, boston_y, cv=5, n_jobs=-1)

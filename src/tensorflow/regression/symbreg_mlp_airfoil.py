@@ -5,8 +5,8 @@ from load_utils import loadAirfoil
 
 # Hyperparameters 
 
-BATCH_SIZE = 50
-NUM_EPOCHS = 150
+BATCH_SIZE = 100
+NUM_EPOCHS = 300
 NB_VAR = 5
 NB_NEURON = 800
 LEARNING_RATE = 0.001
@@ -33,7 +33,8 @@ pred = tf.matmul(pred, w_output)
 # Define the loss function (MSE)
 loss = tf.reduce_mean(tf.square(pred - Y))
 # Use a gradient descent as optimization method
-train_op = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(loss)
+# train_op = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(loss)
+train_op = tf.train.RMSPropOptimizer(LEARNING_RATE, decay=0.9, momentum=0.5, epsilon=1e-10, use_locking=False, name='RMSProp').minimize(loss)
 
 
 # Graph infos

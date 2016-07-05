@@ -21,38 +21,31 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pygraphviz as pgv
 import tensorflow as tf
+import gpDeapTensorflow as gpdt
 
 from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
 from deap import gp
-from deapToTensorflow import primitivetree_to_tensor
+
+
 
 # Creation des donnees artificielles pour test avec TensorFlow
 data_train = []
-for i in range(-10,10):
+for i in range(-100,100):
     x = i/10.0
-    y = x**4 + x**3 + x**2 + x
+    y = x**4 + x**3 + x**2 + 3.14 * x
     data_train.append([x, y])
 
 data_test = []
-for i in range(-50,50):
+for i in range(-10,10):
     x = i/10.0
-    y = x**4 + x**3 + x**2 + x
+    y = x**4 + x**3 + x**2 + 3.14 * x
     data_test.append([x, y])
 
 data_train = numpy.array(data_train)
 data_test = numpy.array(data_test)
-
-trX = data_train[:, :1]
-trY = data_train[:, -1:]
-teX = data_test[:, :1]
-teY = data_test[:, -1:]
-
-# Association of loaded data and input/output nodes
-dictTrain = {"X": trX, "Y": trY}
-dictTest = {"X": teX, "Y": teY}
 
 
 ###################################################
@@ -62,41 +55,45 @@ dictTest = {"X": teX, "Y": teY}
 
 # data : measured
 # func : prediction
-def meanSquarredError(func, data):
+def meanSquarredError(func, data, optimized_weights):
     sqerrors = 0
-
+    
     inputs = data[:, :1]
     outputs = data[:, -1:]
 
     for x, y in zip(inputs, outputs):
-        sqerrors += (y - func(x))**2
+        sqerrors += (y - func(x, optimized_weights))**2
 
-    # On arrondit sinon suraprentissage
-    res = round(sqerrors / data.size, 10)
+    res = sqerrors / data.size
+
     return res
 
 
 # Fonction d'evaluation
-def evalSymbReg(individual, points):
-    # Compute the difficulty of individual
-    difficulty = 0
+def evalSymbReg(individual, nepochs, points):
+    # On transforme l'expression symbolique en une fonction executable auquelle
+    # on a ajoute l'impact des coefficients
+    func, nb_weights = gpdt.compile_with_weights(individual, pset)
 
-    for x in individual:
-        difficulty += 1
-        difficulty += OperationCost.get(x.name, 0)
+    if nepochs == 0:
+        individual.optimized_weights = [1.] * nb_weights
+    else:
+        # Optimisation des constantes avec TensorFlow
+        individual_tensor = gpdt.primitivetree_to_tensor(individual, nb_args, nb_weights)
+        optimized_weights = gpdt.tensorflow_run(individual_tensor, data_train, data_test, nepochs)
 
-    # Transform the tree expression in a callable function
-    func = toolbox.compile(expr=individual)
+        # On garde seulement l'optimisation si la fitness est reduite
+        if meanSquarredError(func, points, optimized_weights)[0] < individual.fitness.values[0][0]:
+            individual.optimized_weights = optimized_weights
 
     # Evaluate the mean squared error between the expression
     # and the real function : x**4 + x**3 + x**2 + x
-    return meanSquarredError(func, points), difficulty
+
+    return meanSquarredError(func, points, individual.optimized_weights),
 
 
 def display_graph(expr):
     nodes, edges, labels = gp.graph(expr)
-
-    print labels
 
     g = nx.Graph()
     g.add_nodes_from(nodes)
@@ -125,7 +122,7 @@ def display_stats(logbook):
     for tl in ax1.get_yticklabels():
         tl.set_color("b")
 
-    # On cree la courbe qui represente l'evolution de la taille des individus en fonction des generations 
+    # On cree la courbe qui represente l'evolution de la taille des individus
     ax2 = ax1.twinx()
     line2 = ax2.plot(gen, size_avgs, "r-", label="Average Size")
     ax2.set_ylabel("Size", color="r")
@@ -141,7 +138,7 @@ def display_stats(logbook):
 
 
 #########################################
-# Suite du code programmation genetique #
+# Programmation genetique               #
 #########################################
 
 # Definition des nouvelles primitives
@@ -152,15 +149,6 @@ def max_rectifier(x):
 def min_rectifier(x):
     return min(x, 0)
 
-# Table du cout des operations
-OperationCost = {
-    "add": 2,
-    "sub": 2,
-    "mul": 3,
-    "max_rectifier": 4,
-    "min_rectifier": 4,
-}
-
 # On regroupe les primitives dans un ensemble
 pset = gp.PrimitiveSet("MAIN", 1)
 pset.addPrimitive(operator.add, 2)
@@ -169,9 +157,10 @@ pset.addPrimitive(operator.mul, 2)
 pset.addPrimitive(max_rectifier, 1)
 pset.addPrimitive(min_rectifier, 1)
 pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
-pset.renameArguments(ARG0='x')
 
-creator.create("FitnessMin", base.Fitness, weights=(-1.0, -1.0))
+nb_args = len(pset.arguments)
+
+creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
 
 # Creation de la toolbox
@@ -194,7 +183,7 @@ toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max
 def main():
     random.seed(318)
 
-    pop = toolbox.population(n=300)
+    pop = toolbox.population(n=100)
     hof = tools.HallOfFame(1)
     
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
@@ -206,43 +195,29 @@ def main():
     mstats.register("max", numpy.max)
 
     # Using HARM-GP
-    pop, log = gp.harm(pop, toolbox, 0.5, 0.1, 40, alpha=0.05, beta=10, gamma=0.25, 
-                       rho=0.9, stats=mstats, halloffame=hof, verbose=True)
+    pop, log = gpdt.harm_weights(pop, toolbox, 0.5, 0.1, 40, 100, alpha=0.05, beta=10, gamma=0.25, 
+                                 rho=0.9, stats=mstats, halloffame=hof, verbose=True)
     
     best_individual = hof[0]
 
     # Affiche l'exp symbolique sous forme prefixe du modele le plus proche
     print "\n", best_individual
 
-    # Info debug
-    print "[0]", best_individual[0].name
-    print "[1]", best_individual[1].name
-    print "[2]", best_individual[2].name
-    print "[3]", best_individual[3].name
-    print "[4]", best_individual[4].name
-    print "[5]", best_individual[5].name
-    print "[6]", best_individual[6].name
-    print "[7]", best_individual[7].name
-    print "[8]", best_individual[8].name
-    print "[9]", best_individual[9].name
-    print "[10]", best_individual[10].name
-    print "[11]", best_individual[11].name
-    print "[12]", best_individual[12].name
+    # Affichage de l'exp symbolique avec coefficients
+    print gpdt.exp_to_string_with_weights(best_individual)
 
+    # Todo : optimiser les coefficients du best_individual
+
+    func, nb_weights = gpdt.compile_with_weights(best_individual, pset)
+
+    print "Coefficients optimaux  : ", best_individual.optimized_weights
+    print "MSE : ", meanSquarredError(func, data_train, best_individual.optimized_weights)
+    
     # Affiche l'arbre DEAP representant le modele le plus proche
-    display_graph(hof[0])
+    display_graph(best_individual)
 
     # Affiche les statistiques au cours de l'evolution
     display_stats(log)
-
-    # TensorFlow exploitation
-    tensor = primitivetree_to_tensor(best_individual)
-
-    # We compile the graph
-    sess = tf.Session()
-
-    # Write graph infos to the specified file
-    writer = tf.train.SummaryWriter("/tmp/tflogs_computation", sess.graph, flush_secs=10)
 
     return pop, log, hof
 

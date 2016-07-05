@@ -28,33 +28,25 @@ from deap import creator
 from deap import tools
 from deap import gp
 
-# Pour le classement des joueurs en fonction de leur style de jeu :
-# Total de 18 variables d'entree
-# Input variables :
-# 1. (Inutile en variable) GameID: Unique ID number for each game (integer) 
-# 3. Age: Age of each player (integer) 
-# 4. HoursPerWeek: Reported hours spent playing per week (integer) 
-# 5. TotalHours: Reported total hours spent playing (integer) 
-# 6. APM: Action per minute (continuous) 
-# 7. SelectByHotkeys: Number of unit or building selections made using hotkeys per timestamp (continuous) 
-# 8. AssignToHotkeys: Number of units or buildings assigned to hotkeys per timestamp (continuous) 
-# 9. UniqueHotkeys: Number of unique hotkeys used per timestamp (continuous) 
-# 10. MinimapAttacks: Number of attack actions on minimap per timestamp (continuous) 
-# 11. MinimapRightClicks: number of right-clicks on minimap per timestamp (continuous) 
-# 12. NumberOfPACs: Number of PACs per timestamp (continuous) 
-# 13. GapBetweenPACs: Mean duration in milliseconds between PACs (continuous) 
-# 14. ActionLatency: Mean latency from the onset of a PACs to their first action in milliseconds (continuous) 
-# 15. ActionsInPAC: Mean number of actions within each PAC (continuous) 
-# 16. TotalMapExplored: The number of 24x24 game coordinate grids viewed by the player per timestamp (continuous) 
-# 17. WorkersMade: Number of SCVs, drones, and probes trained per timestamp (continuous) 
-# 18. UniqueUnitsMade: Unique unites made per timestamp (continuous) 
-# 19. ComplexUnitsMade: Number of ghosts, infestors, and high templars trained per timestamp (continuous) 
-# 20. ComplexAbilitiesUsed: Abilities requiring specific targeting instructions used per timestamp (continuous)
-# Output variable :
-# 2. LeagueIndex: Bronze, Silver, Gold, Platinum, Diamond, Master, GrandMaster, and Professional leagues coded 1-8 (Ordinal) 
+# Pour la qualite du vin les donnees sont organisees comme decrit ci-dessous
+# Total de 11 variables d'entree
+# Input variables (based on physicochemical tests): 
+# 1 - fixed acidity 
+# 2 - volatile acidity 
+# 3 - citric acid 
+# 4 - residual sugar 
+# 5 - chlorides 
+# 6 - free sulfur dioxide 
+# 7 - total sulfur dioxide 
+# 8 - density 
+# 9 - pH 
+# 10 - sulphates 
+# 11 - alcohol 
+# Output variable (based on sensory data): 
+# 12 - quality (score between 0 and 10)
 
 # Recuperation des donnees du fichier csv
-reader = csv.reader(open("../res/skillcraft/skillcraft.csv",'r'), delimiter=',')
+reader = csv.reader(open("../../res/wine_quality/winequality-red.csv",'r'), delimiter=';')
 reader.next()
 points = list(reader)
 
@@ -73,8 +65,8 @@ def testPerformance(individual, points):
     somme = 0
 
     for p in points:
-        inputs = [float(p[x]) for x in range(2, len(p))]
-        outputs = int(p[1])
+        inputs = [float(p[x]) for x in range(len(p)-1)]
+        outputs = float(p[len(p)-1])
         
         if abs((outputs - func(*inputs))) <= 1:
             somme += 1
@@ -88,9 +80,8 @@ def meanSquarredError(func, points):
     sqerrors = 0
 
     for p in points:
-        inputs = [float(p[x]) for x in range(2, len(p))]
-        outputs = int(p[1])
-
+        inputs = [float(p[x]) for x in range(len(p)-1)]
+        outputs = float(p[len(p)-1])
         sqerrors += (outputs - func(*inputs))**2
 
     # On arrondit sinon suraprentissage
@@ -155,7 +146,7 @@ def protectedDiv(left, right):
     except ZeroDivisionError:
         return 1
 
-pset = gp.PrimitiveSet("MAIN", 18)
+pset = gp.PrimitiveSet("MAIN", 11)
 pset.addPrimitive(operator.add, 2)
 pset.addPrimitive(operator.sub, 2)
 pset.addPrimitive(operator.mul, 2)
@@ -163,7 +154,6 @@ pset.addPrimitive(protectedDiv, 2)
 pset.addPrimitive(operator.neg, 1)
 pset.addPrimitive(math.cos, 1)
 pset.addPrimitive(math.sin, 1)
-pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
 
 creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
@@ -192,7 +182,6 @@ toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
 toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
 
-
 def main():
     random.seed(318)
 
@@ -207,17 +196,17 @@ def main():
     mstats.register("min", numpy.min)
     mstats.register("max", numpy.max)
 
-    # pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 50, stats=mstats,
+    #pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 160, stats=mstats,
     #                               halloffame=hof, verbose=True)
-    
+
     # Using HARM-GP
-    pop, log = gp.harm(pop, toolbox, 0.5, 0.1, 50, alpha=0.05, beta=10, gamma=0.25, rho=0.9, stats=mstats,
-                                   halloffame=hof, verbose=True)
+    pop, log = gp.harm(pop, toolbox, 0.5, 0.1, 50, alpha=0.05, beta=10, gamma=0.25, rho=0.9,
+                       stats=mstats, halloffame=hof, verbose=True)
 
     # Validation du modele sur l'ensemble d'apprentissage (en %)
     print("\nBase d'apprentissage : " + str(testPerformance(hof[0], points) * 100) + " %")
 
-    # Validation du modele sur l'ensemble d'apprentissage (en %)
+    # Validation du modele sur l'ensemble de tests (en %)
     print("Base de validation (test) : " + str(testPerformance(hof[0], test) * 100) + " %")
 
     # Affiche l'arbre representant le modele le plus proche
