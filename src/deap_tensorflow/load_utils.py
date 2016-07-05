@@ -10,6 +10,7 @@ PREFIX = "../../"
 # Dictionnaire faisant le lien entre l'argument de main et la fonction de load
 dict_load = {'polynome':'loadPolynome()', 'boston':'loadBoston()', 'airfoil':'loadAirfoil()', 'onlinepop':'loadOnlinepop()', 'compactiv':'loadCompactiv()', 'spacega':'loadSpacega()'}
 
+
 # GEN
 # La fonction generatrice sert a generer les indices
 # permettant d'effectuer une 5-fold cross-validation
@@ -17,7 +18,6 @@ dict_load = {'polynome':'loadPolynome()', 'boston':'loadBoston()', 'airfoil':'lo
 # Pour cela on utilise la librairie cross_validation de sklearn
 # On retourne ensuite ce k-fold
 # NB : retourne en fait un generateur
-
 
 def genIndex(n_elem):
     kf_array = []

@@ -24,9 +24,9 @@ def linear_run(dataX, dataY):
     return mse
     
 
-#########################################
-# Main call                             #
-#########################################
+##############
+# Main call  #
+##############
 
 def usage(argv):
     if len(sys.argv) != 2 or not(sys.argv[1] in load.dict_load): 
@@ -47,10 +47,10 @@ def main():
     # Execution
     begin = time.time()
     mse = linear_run(dataX, dataY)
-    runtime = "(done in {:.2f} seconds)".format(time.time() - begin)
+    runtime = "{:.2f} seconds".format(time.time() - begin)
 
     # On sauvegarde le mse en dur
-    log_mse = arg + " | MSE : " + str(mse) + " " + runtime + "\n"
+    log_mse = arg + " | MSE : " + str(mse) + " | " + runtime + "\n"
     file = open("logbook_mse_linear.txt", "a")
     file.write(log_mse)
 

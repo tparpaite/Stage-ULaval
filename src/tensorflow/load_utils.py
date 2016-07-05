@@ -2,6 +2,13 @@ import numpy as np
 from sklearn import datasets
 from sklearn import cross_validation
 
+# Chemin relatif jusqu'aux dataset
+PREFIX = "../../../"
+
+# Dictionnaire faisant le lien entre l'argument de main et la fonction de load
+dict_load = {'polynome':'loadPolynome()', 'boston':'loadBoston()', 'airfoil':'loadAirfoil()', 'onlinepop':'loadOnlinepop()', 'compactiv':'loadCompactiv()', 'spacega':'loadSpacega()'}
+
+
 def loadBoston():
     boston = datasets.load_boston()
     trX, teX, trY, teY = cross_validation.train_test_split(boston.data, boston.target, 

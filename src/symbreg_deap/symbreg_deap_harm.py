@@ -193,7 +193,7 @@ def update_toolbox_evaluate(toolbox, teX, teY):
 
 
 #########################################
-# Boucle principale GP                  #
+# Boucle principale GP avec harm        #
 #########################################
 
 def deap_run(dataX, dataY, kfold):
@@ -236,17 +236,6 @@ def deap_run(dataX, dataY, kfold):
 
         logbook_list.append(log)
 
-        # print "MSE : ", mse
-
-        # Affiche l'exp symbolique sous forme infixe du modele le plus proche
-        # print "\n", best_individual
-
-        # Affiche l'arbre DEAP representant le modele le plus proche
-        # display_graph(best_individual)
-        
-        # Affiche les statistiques sous forme de graphe
-        # display_stats(log)
-
     logbook = merge_logbook(logbook_list)
 
     # On retourne la moyenne du MSE et size obtenue en appliquant la 5-fold cross-validation
@@ -256,9 +245,9 @@ def deap_run(dataX, dataY, kfold):
     return mse_mean, size_mean, logbook
 
 
-########################################################################
-# Deap / Tensorflow run                                                #
-########################################################################
+####################
+# Main call        #
+####################
 
 def usage(argv):
     if len(sys.argv) != 2 or not(sys.argv[1] in load.dict_load): 

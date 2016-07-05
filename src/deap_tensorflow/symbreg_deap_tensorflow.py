@@ -203,14 +203,15 @@ def update_toolbox_evaluate(toolbox, pset, trX, trY, teX, teY):
     toolbox.register("evaluate", eval_symbreg, pset=pset, trX=trX, trY=trY, teX=teX, teY=teY)
 
 
-#########################################
-# Boucle principale GP                  #
-#########################################
+###################################################################
+# Boucle principale GP (harm) avec optimisation des coefficients  #
+###################################################################
 
 def deap_run(dataX, dataY, kfold):
     random.seed(318)
 
     mse_sum = 0
+    size_sum = 0
     logbook_list = []
     n_args = len(dataX[0])
     pset = create_primitive_set(n_args)
@@ -235,12 +236,13 @@ def deap_run(dataX, dataY, kfold):
         mstats.register("max", numpy.max)
 
         # Using HARM-GP extended
-        pop, log = gpdt.harm_weights(pop, toolbox, 0.5, 0.1, N_GEN, N_EPOCHS, alpha=0.05, 
-                                     beta=10, gamma=0.25, rho=0.9, stats=mstats, halloffame=hof, verbose=True)
-    
+        pop, log = gpdt.harm_weights(pop, toolbox, 0.5, 0.1, N_GEN, N_EPOCHS, alpha=0.05, beta=10,
+                                     gamma=0.25, rho=0.9, stats=mstats, halloffame=hof, verbose=True)
         best_individual = hof[0]
         mse = best_individual.fitness.values[0]
+        size = best_individual.height
         mse_sum += mse
+        size_sum += size
 
         logbook_list.append(log)
 
@@ -258,20 +260,22 @@ def deap_run(dataX, dataY, kfold):
         # display_stats(log)
 
     logbook = merge_logbook(logbook_list)
-    print logbook.stream
+    # print logbook.stream
 
-    # On retourne la moyenne du MSE obtenue en appliquant la 5-fold cross-validation
-    res = (mse_sum / 5)[0]
-    return res, logbook
+    # On retourne la moyenne du MSE et size obtenue en appliquant la 5-fold cross-validation
+    mse_mean = (mse_sum / 5)[0]
+    size_mean = size_sum / 5
+
+    return mse_mean, size_mean, logbook
 
 
-########################################################################
-# Deap / Tensorflow run                                                #
-########################################################################
+###############
+# Main call   #
+###############
 
 def usage(argv):
     if len(sys.argv) != 2 or not(sys.argv[1] in load.dict_load): 
-        err_msg = "Usage : python symbreg_deaptens_polynome data_name\n"
+        err_msg = "Usage : python symbreg_deap_tensorflow.py data_name\n"
         err_msg += "Jeux de donnees disponibles : "
         err_msg += str([key for key in load.dict_load.keys()]) + "\n"
         sys.stderr.write(err_msg)
@@ -287,14 +291,14 @@ def main():
 
     # Aprentissage automatique
     begin = time.time()
-    mse, logbook = deap_run(dataX, dataY, kfold)
-    deap_runtime = "(done in {:.2f} seconds)".format(time.time() - begin)
+    mse, size, logbook = deap_run(dataX, dataY, kfold)
+    deap_runtime = "{:.2f} seconds".format(time.time() - begin)
 
     # On sauvegarde le logbook et le mse en dur
     logbook_filename = "logbook_" + arg + ".pkl"
     pickle.dump(logbook, open(logbook_filename, "w"))
 
-    log_mse = arg + " | MSE : " + str(mse) + " " + deap_runtime + "\n"
+    log_mse = arg + " | MSE : " + str(mse) + " | size : " + str(size) + " | " + deap_runtime + "\n"
     file = open("logbook_mse_deaptensorflow.txt", "a")
     file.write(log_mse)
 
