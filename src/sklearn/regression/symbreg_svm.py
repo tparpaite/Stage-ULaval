@@ -4,8 +4,9 @@ import os
 import cPickle as pickle
 import matplotlib.pyplot as plt
 import numpy as np
-import load_utils as load
 
+sys.path.append('../../../')
+from datasets import load_utils as load
 from sklearn import svm
 from sklearn import cross_validation
 from sklearn import metrics
@@ -125,6 +126,9 @@ def main():
     dataset = sys.argv[1]
     run = "load.load_" + dataset + "()"
     dataX, dataY, kf_array = eval(run)
+
+    # On transpose la matrice Y
+    dataY = np.reshape(dataY, -1)
 
     # Recherche des hyperparametres optimaux (ou chargement si deja calcule)
     hyperparameters = svm_hyperparameters(dataset, dataX, dataY, kf_array)

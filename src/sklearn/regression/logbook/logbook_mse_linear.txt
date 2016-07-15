@@ -6,3 +6,8 @@ airfoil | MSE : 23.3384065085 | 0.06 seconds
 boston | MSE : 23.3159792108 | 0.04 seconds
 airfoil | MSE : 23.3384065085 | 0.06 seconds
 polynome | MSE : 0.457164220406 | 0.01 seconds
+boston | MSE : 5.87331379008 | 0.02 seconds
+keijzer_6 | MSE : 0.0436514092833 | 0.00 seconds
+boston | MSE : 23.3159792108 | 0.15 seconds
+boston | MSE : 23.3159792108 | 0.07 seconds
+boston | MSE : 23.3159792108 | 0.06 seconds

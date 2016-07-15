@@ -2,8 +2,9 @@ import time
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
-import load_utils as load
 
+sys.path.append('../../../')
+from datasets import load_utils as load
 from sklearn import linear_model
 from sklearn import cross_validation
 from sklearn import metrics
@@ -26,7 +27,7 @@ def linear_run(dataX, dataY, kf_array):
             
             # On entraine notre svm
             regr.fit(trX, trY)
-
+        
             # Evaluation du mse sur l'ensemble test
             predicted = regr.predict(teX)
             mse = metrics.mean_squared_error(teY, predicted)

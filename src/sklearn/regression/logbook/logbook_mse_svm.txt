@@ -5,3 +5,4 @@ polynome | MSE : 0.0490604475208 | 0.01 seconds
 polynome | MSE : 0.0490604475208 | 0.01 seconds
 polynome | MSE : 0.0296041253717 | 0.06 seconds
 airfoil | MSE : 20.0949466201 | 361.59 seconds
+boston | MSE : 13.858549787 | 138.69 seconds

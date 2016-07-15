@@ -1,18 +1,3 @@
-#    This file is part of DEAP.
-#
-#    EAP is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as
-#    published by the Free Software Foundation, either version 3 of
-#    the License, or (at your option) any later version.
-#
-#    EAP is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public
-#    License along with EAP. If not, see <http://www.gnu.org/licenses/>.
-
 import sys
 import os
 import pickle
@@ -27,8 +12,9 @@ import pygraphviz as pgv
 import tensorflow as tf
 import gp_deap_tensorflow as gpdt
 import tensorflow_computation as tfc
-import load_utils as load
 
+sys.path.append('../../')
+from datasets import load_utils_tmp as load
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -361,7 +347,7 @@ def deaptensorflow_run(hyperparameters, dataX, dataY, kfold):
         # Evolution de la population et retour du meilleur individu
         best_individual, log = deaptensorflow_launch_evolution(hyperparameters, toolbox, pset,
                                                                trX, trY, teX, teY)
-        
+    
         # On recupere les informations pour faire la moyenne
         mse_sum += best_individual.fitness.values[0]
         size_sum += best_individual.height
@@ -370,7 +356,7 @@ def deaptensorflow_run(hyperparameters, dataX, dataY, kfold):
         #####################################################################
         # /!\ TODO : optimiser encore plus loin les coef du best_individual #
         #####################################################################
-
+    
         print "Coefficients optimaux  : ", best_individual.optimized_weights
         print "MSE : ", mse
         # Affichage de l'exp symbolique avec coefficients
@@ -379,7 +365,7 @@ def deaptensorflow_run(hyperparameters, dataX, dataY, kfold):
         # display_graph(best_individual)
         # Affiche les statistiques sous forme de graphe
         # display_stats(log)
-
+    
     logbook = merge_logbook(logbook_list)
 
     # On retourne la moyenne du MSE et size obtenue en appliquant la 5-fold cross-validation

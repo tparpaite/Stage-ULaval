@@ -1,9 +1,0 @@
-#!/bin/sh
-
-USAGE="option cols"
-
-sar  -f cpu.4096 -$1 | nawk '
-
-NR > 4 && !/Average/ { print $0}
-
-' | getCol -c $2 > $1 

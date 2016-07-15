@@ -4,7 +4,10 @@ import os
 import pickle
 import tensorflow as tf
 import numpy as np
-import load_utils as load
+
+sys.path.append('../../')
+from datasets import load_utils as load
+
 
 ####################
 # Hyperparametres  #
@@ -343,11 +346,11 @@ def tensorflow_run(hyperparameters, dataX, dataY, kf_array):
         for tr_index, te_index in kfold:
             trX, teX = dataX[tr_index], dataX[te_index]
             trY, teY = dataY[tr_index], dataY[te_index]
-            
+        
             # Entrainement du MLP et evaluation de son MSE
             mse = tensorflow_train(sess, mlp, trX, trY, teX, teY)
             mse_sum += mse
-
+        
     # On retourne le mse moyen
     return mse_sum / 20
 

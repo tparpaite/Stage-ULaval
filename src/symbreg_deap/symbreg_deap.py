@@ -1,18 +1,3 @@
-#    This file is part of DEAP.
-#
-#    EAP is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Lesser General Public License as
-#    published by the Free Software Foundation, either version 3 of
-#    the License, or (at your option) any later version.
-#
-#    EAP is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#    GNU Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public
-#    License along with EAP. If not, see <http://www.gnu.org/licenses/>.
-
 import sys
 import pickle
 import time
@@ -24,8 +9,9 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pygraphviz as pgv
 import tensorflow as tf
-import load_utils as load
 
+sys.path.append('../../')
+from datasets import load_utils as load
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -212,12 +198,12 @@ def deap_run(dataX, dataY, kf_array):
         for tr_index, te_index in kfold:
             trX, teX = dataX[tr_index], dataX[te_index]
             trY, teY = dataY[tr_index], dataY[te_index]
-
+        
             update_toolbox_evaluate(toolbox, teX, teY)
-
+            
             pop = toolbox.population(n=POP_SIZE)
             hof = tools.HallOfFame(1)
-        
+            
             stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
             stats_size = tools.Statistics(len)
             mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
@@ -225,17 +211,17 @@ def deap_run(dataX, dataY, kf_array):
             mstats.register("std", numpy.std)
             mstats.register("min", numpy.min)
             mstats.register("max", numpy.max)
-
+        
             # Classic GP (attention au bloat)
             pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, N_GEN, stats=mstats,
                                            halloffame=hof, verbose=True)
-        
+            
             best_individual = hof[0]
             mse = best_individual.fitness.values[0]
             size = best_individual.height
             mse_sum += mse
             size_sum += size
-
+            
             logbook_list.append(log)
     
     logbook = merge_logbook(logbook_list)
