@@ -196,51 +196,53 @@ def update_toolbox_evaluate(toolbox, teX, teY):
 # Boucle principale GP sans harm        #
 #########################################
 
-def deap_run(dataX, dataY, kfold):
+def deap_run(dataX, dataY, kf_array):
     random.seed(318)
 
-    mse_sum = 0
-    size_sum = 0
     logbook_list = []
     n_args = len(dataX[0])
     pset = create_primitive_set(n_args)
     toolbox = create_toolbox(pset)
 
-    # On split et boucle sur les 5-fold en updatant l'evaluate
-    for tr_index, te_index in kfold:
-        trX, teX = dataX[tr_index], dataX[te_index]
-        trY, teY = dataY[tr_index], dataY[te_index]
+    # On boucle sur le 5-fold x4 (cross validation)
+    mse_sum = 0
+    size_sum = 0
 
-        update_toolbox_evaluate(toolbox, teX, teY)
+    for kfold in kf_array:
+        for tr_index, te_index in kfold:
+            trX, teX = dataX[tr_index], dataX[te_index]
+            trY, teY = dataY[tr_index], dataY[te_index]
 
-        pop = toolbox.population(n=POP_SIZE)
-        hof = tools.HallOfFame(1)
+            update_toolbox_evaluate(toolbox, teX, teY)
+
+            pop = toolbox.population(n=POP_SIZE)
+            hof = tools.HallOfFame(1)
         
-        stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
-        stats_size = tools.Statistics(len)
-        mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
-        mstats.register("avg", numpy.mean)
-        mstats.register("std", numpy.std)
-        mstats.register("min", numpy.min)
-        mstats.register("max", numpy.max)
+            stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
+            stats_size = tools.Statistics(len)
+            mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
+            mstats.register("avg", numpy.mean)
+            mstats.register("std", numpy.std)
+            mstats.register("min", numpy.min)
+            mstats.register("max", numpy.max)
 
-        # Classic GP (attention au bloat)
-        pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, N_GEN, stats=mstats,
-                                       halloffame=hof, verbose=True)
+            # Classic GP (attention au bloat)
+            pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, N_GEN, stats=mstats,
+                                           halloffame=hof, verbose=True)
+        
+            best_individual = hof[0]
+            mse = best_individual.fitness.values[0]
+            size = best_individual.height
+            mse_sum += mse
+            size_sum += size
+
+            logbook_list.append(log)
     
-        best_individual = hof[0]
-        mse = best_individual.fitness.values[0]
-        size = best_individual.height
-        mse_sum += mse
-        size_sum += size
-
-        logbook_list.append(log)
-
     logbook = merge_logbook(logbook_list)
 
     # On retourne la moyenne du MSE et size obtenue en appliquant la 5-fold cross-validation
-    mse_mean = (mse_sum / 5)[0]
-    size_mean = size_sum / 5
+    mse_mean = (mse_sum / 20)[0]
+    size_mean = size_sum / 20
 
     return mse_mean, size_mean, logbook
 
@@ -250,10 +252,10 @@ def deap_run(dataX, dataY, kfold):
 ################
 
 def usage(argv):
-    if len(sys.argv) != 2 or not(sys.argv[1] in load.dict_load): 
-        err_msg = "Usage : python symbreg_deap.py data_name\n"
+    if len(sys.argv) != 2 or not(sys.argv[1] in load.dataset_list): 
+        err_msg = "Usage : python symbreg_svm.py data_name\n"
         err_msg += "Jeux de donnees disponibles : "
-        err_msg += str([key for key in load.dict_load.keys()]) + "\n"
+        err_msg += str([dataset for dataset in load.dataset_list]) + "\n"
         sys.stderr.write(err_msg)
         sys.exit(1)
 
@@ -261,22 +263,22 @@ def usage(argv):
 def main():
     # Chargement des donnees
     usage(sys.argv)
-    arg = sys.argv[1]
-    run = "load." + load.dict_load[arg]
-    dataX, dataY, kfold = eval(run)
+    dataset = sys.argv[1]
+    run = "load.load_" + dataset + "()"
+    dataX, dataY, kf_array = eval(run)
 
     # Aprentissage automatique
     begin = time.time()
-    mse, size, logbook = deap_run(dataX, dataY, kfold)
+    mse, size, logbook = deap_run(dataX, dataY, kf_array)
     deap_runtime = "{:.2f} seconds".format(time.time() - begin)
 
     # On sauvegarde le logbook et le mse en dur
-    logbook_filename = "logbook_" + arg + ".pkl"
+    logbook_filename = "./logbook/logbook_" + dataset + ".pickle"
     pickle.dump(logbook, open(logbook_filename, "w"))
 
-    log_mse = arg + " | MSE : " + str(mse) + " | size : " + str(size) + " | " + deap_runtime + "\n"
-    file = open("logbook_mse_deap.txt", "a")
-    file.write(log_mse)
+    log_mse = dataset + " | MSE : " + str(mse) + " | size : " + str(size) + " | " + deap_runtime + "\n"
+    fd = open("./logbook/logbook_mse_deap.txt", "a")
+    fd.write(log_mse)
 
 
 if __name__ == "__main__":

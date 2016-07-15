@@ -1,0 +1,8 @@
+polynome | MSE : 0.457164220406 | 0.02 seconds
+boston | MSE : 23.3159792108 | 0.09 seconds
+airfoil | MSE : 23.3384065085 | 0.03 seconds
+airfoil | MSE : 23.3384065085 | 0.06 seconds
+airfoil | MSE : 23.3384065085 | 0.06 seconds
+boston | MSE : 23.3159792108 | 0.04 seconds
+airfoil | MSE : 23.3384065085 | 0.06 seconds
+polynome | MSE : 0.457164220406 | 0.01 seconds

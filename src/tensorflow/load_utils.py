@@ -1,74 +1,31 @@
 import numpy as np
 from sklearn import datasets
-from sklearn import cross_validation
+from sklearn import cross_validation as cv
 
 # Chemin relatif jusqu'aux dataset
-PREFIX = "../../../"
+PREFIX = "../../"
 
-# Dictionnaire faisant le lien entre l'argument de main et la fonction de load
-dict_load = {'polynome':'loadPolynome()', 'boston':'loadBoston()', 'airfoil':'loadAirfoil()', 'onlinepop':'loadOnlinepop()', 'compactiv':'loadCompactiv()', 'spacega':'loadSpacega()'}
+# Liste des jeux de donnees
+dataset_list = {'polynome', 'boston', 'airfoil', 'onlinepop', 'compactiv', 'spacega'}
 
+# GEN
+# La fonction generatrice sert a generer les indices
+# permettant d'effectuer une 5-fold cross-validation
+# On effectue 4 fois ce partitionnement de maniere pseudo-aleatoire 
+# Pour cela on utilise la librairie cross_validation de sklearn
+# On retourne ensuite ce k-fold
+# NB : retourne en fait un generateur
 
-def loadBoston():
-    boston = datasets.load_boston()
-    trX, teX, trY, teY = cross_validation.train_test_split(boston.data, boston.target, 
-                                                           test_size=0.33, random_state=42)
-    trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
-    return trX, trY, teX, teY
+def gen_index(n_elem):
+    kf_array = []
 
-
-def loadAirfoil():
-    # Recuperation des donnees du fichier csv
-    path = "../../../res/airfoil/airfoil.dat"
-    airfoil = np.genfromtxt(path, delimiter='\t', skip_header=1)
-    airfoil_X = airfoil[:, :5]
-    airfoil_y = airfoil[:, -1:]
-
-    trX, teX, trY, teY = cross_validation.train_test_split(airfoil_X, airfoil_y, 
-                                                           test_size=0.33, random_state=42)
-    trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
-    return trX, trY, teX, teY
+    for random_state in [42, 1994, 69, 314]:
+        kf_array.append(cv.KFold(n_elem, n_folds=5, shuffle=True, random_state=random_state))
+        
+    return kf_array
 
 
-def loadOnlinepop():
-    # Recuperation des donnees du fichier csv
-    path = "../../../res/OnlineNewsPopularity/OnlineNewsPopularity.csv"
-    onlinepop = np.genfromtxt(path, delimiter=',', skip_header=1)
-    onlinepop_X = onlinepop[:, 2:60]
-    onlinepop_y = onlinepop[:, -1:]
-
-    trX, teX, trY, teY = cross_validation.train_test_split(onlinepop_X, onlinepop_y, 
-                                                           test_size=0.33, random_state=42)
-    trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
-    return trX, trY, teX, teY
-
-
-def loadCompactiv():
-    # Recuperation des donnees du fichier csv
-    compactiv = np.genfromtxt("../../../res/compactiv/compactiv.data", delimiter=' ')
-    dataX = compactiv[:, :21]
-    dataY = compactiv[:, -1:]
-    
-    trX, teX, trY, teY = cross_validation.train_test_split(dataX, dataY, 
-                                                           test_size=0.33, random_state=42)
-    trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
-    return trX, trY, teX, teY   
-
-
-def loadSpacega():
-    # Recuperation des donnees du fichier csv
-    path = "../../../res/spacega/spacega.csv"
-    spacega = np.genfromtxt(path, delimiter=',')
-    dataX = spacega[:, 1:]
-    dataY = spacega[:, [0]]
-
-    trX, teX, trY, teY = cross_validation.train_test_split(dataX, dataY, 
-                                                           test_size=0.33, random_state=42)
-    trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
-    return trX, trY, teX, teY
-
-
-def loadPolynome():
+def load_polynome():
     # Creation des donnees artificielles representant un polynome
     dataX = []
     dataY = []
@@ -83,7 +40,76 @@ def loadPolynome():
     dataX = np.array(dataX)
     dataY = np.array(dataY)
 
-    trX, teX, trY, teY = cross_validation.train_test_split(dataX, dataY, 
-                                                           test_size=0.33, random_state=42)
-    trY, teY = trY.reshape(len(trY), -1), teY.reshape(len(teY), -1)
-    return trX, trY, teX, teY
+    # Generation des indices
+    kf_array = gen_index(len(dataX))
+
+    # Temporairement : on ne run que sur un seul 5-fold pour le moment
+    return dataX, dataY, kf_array
+
+
+def load_boston():
+    # Recuperation des donnees
+    boston = datasets.load_boston()
+    dataX = boston.data
+    dataY = boston.target
+
+    # On transpose la matrice Y
+    dataY = np.reshape(dataY, (len(dataY), -1))
+    
+    # Generation des indices
+    kf_array = gen_index(len(dataX))
+    
+    # Temporairement : on ne run que sur un seul 5-fold pour le moment
+    return dataX, dataY, kf_array
+
+
+def load_airfoil():
+    # Recuperation des donnees du fichier csv
+    path = PREFIX + "datasets/airfoil/airfoil.dat"
+    airfoil = np.genfromtxt(path, delimiter='\t', skip_header=1)
+    dataX = airfoil[:, :5]
+    dataY = airfoil[:, -1:]
+
+    # Generation des indices
+    kf_array = gen_index(len(dataX))
+    
+    return dataX, dataY, kf_array
+
+
+def load_onlinepop():
+    # Recuperation des donnees du fichier csv
+    path = PREFIX + "datasets/OnlineNewsPopularity/OnlineNewsPopularity.csv"
+    onlinepop = np.genfromtxt(path, delimiter=',', skip_header=1)
+    dataX = onlinepop[:, 2:60]
+    dataY = onlinepop[:, -1:]
+
+    # Generation des indices
+    kf_array = gen_index(len(dataX))
+    
+    return dataX, dataY, kf_array
+
+
+def load_compactiv():
+    # Recuperation des donnees du fichier csv
+    path = PREFIX + "datasets/compactiv/compactiv.data"
+    compactiv = np.genfromtxt(path, delimiter=' ')
+    dataX = compactiv[:, :21]
+    dataY = compactiv[:, -1:]
+
+    # Generation des indices
+    kf_array = gen_index(len(dataX))
+
+    return dataX, dataY, kf_array
+
+
+def load_spacega():
+    # Recuperation des donnees du fichier csv
+    path = PREFIX + "datasets/spacega/spacega.csv"
+    spacega = np.genfromtxt(path, delimiter=',')
+    dataX = spacega[:, 1:]
+    dataY = spacega[:, [0]]
+
+    # Generation des indices
+    kf_array = gen_index(len(dataX))
+
+    return dataX, dataY, kf_array

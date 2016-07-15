@@ -14,6 +14,7 @@
 #    License along with EAP. If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import os
 import pickle
 import time
 import operator
@@ -24,7 +25,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pygraphviz as pgv
 import tensorflow as tf
-import gpDeapTensorflow as gpdt
+import gp_deap_tensorflow as gpdt
+import tensorflow_computation as tfc
 import load_utils as load
 
 from deap import algorithms
@@ -34,11 +36,96 @@ from deap import tools
 from deap import gp
 
 
-# Hyperparameters
+####################
+# Hyperparametres  #
+####################
 
-POP_SIZE = 300
-N_GEN = 40
-N_EPOCHS = 80
+# Note : on deduit le nombre de generations de la taille de la population
+# (sachant qu'on veut 100 000 evaluations)
+
+N_EPOCHS = 150
+
+classical_hyperparameters = {
+    'pop_size': 300,
+    'n_tournament': 3,
+    'init_depth': 2,
+}
+
+
+######################################
+# Optimisation des hyperparametres   #
+######################################
+
+def deaptensorflow_hyperparameters(dataset, dataX, dataY, kfold):
+    filepath = "./hyperparameters/hypers_deaptensorflow_" + dataset + ".pickle"
+
+    # On regarde si on n'a pas deja calcule les hyperparametres optimaux
+    if os.path.exists(filepath):
+        with open(filepath, 'rb') as f:
+            best_params = pickle.load(f)
+        return best_params
+        
+    ######################################################
+    # Debut de la recherche des hyperparametres optimaux #
+    ######################################################
+
+    # On recupere le premier pli
+    n_inputs = len(dataX[0])
+    kfold = list(kfold)
+    tr_index, te_index = kfold[0]
+    trX, teX = dataX[tr_index], dataX[te_index]
+    trY, teY = dataY[tr_index], dataY[te_index]
+    
+    # Initialisation avec une valeur de mse maximale
+    best_params = { 'mse': sys.float_info.max }
+
+    # Grid search 
+    # Taille de la population
+    pop_size_grid = [200, 500, 1000, 2000, 5000]
+
+    # Nombre de participants a chaque ronde du tournoi
+    n_tournament_grid = [3, 4, 5, 6, 7]
+
+    # Profondeur a l'initilisation
+    init_depth_grid = [4, 5, 6, 7]
+
+    # Creation des 100 combinaisons possibles
+    zipper = []
+    for pop_size in pop_size_grid:
+        for n_tournament in n_tournament_grid:
+            for init_depth in init_depth_grid:
+                zipper.append([pop_size, n_tournament, init_depth]) 
+
+    # On lance 100 fois l'entrainement sur le pli avec toutes les combinaisons d'hyperparametres
+    for pop_size, n_tournament, init_depth in zipper:    
+        # On stocke les hyperparametres dans un dictionnaire
+        hyperparameters = {
+            'pop_size': pop_size,
+            'n_tournament': n_tournament,
+            'init_depth': init_depth,
+        }
+        
+        # Initialisation de la GP
+        pset = create_primitive_set(n_inputs)
+        toolbox = create_toolbox(hyperparameters, pset)
+        
+        print hyperparameters
+        # Evolution de la population et retour du meilleur individu
+        best_individual, log = deaptensorflow_launch_evolution(hyperparameters, toolbox, pset,
+                                                               trX, trY, teX, teY)
+        
+        # On recupere les informations du meilleur individu
+        hyperparameters['mse'] = best_individual.fitness.values[0]
+        
+        # Sauvegarde des hyperparametres s'ils sont meilleurs
+        if hyperparameters['mse'] < best_params['mse']:
+            best_params = hyperparameters.copy()
+
+    # On sauvegarde les hyperparametres optimaux en dur avec pickle
+    with open(filepath, 'wb') as f:
+        pickle.dump(best_params, f)
+
+    return best_params
 
 
 ###################################################
@@ -128,31 +215,34 @@ def mean_squarred_error(func, optimized_weights, teX, teY):
     n_elements = len(teX)
 
     for x, y in zip(teX, teY):
-        sqerrors += (y - func(optimized_weights, *x))**2
+        sqerrors += (y - func(optimized_weights, *x)) ** 2
 
     return sqerrors / n_elements
 
 
 # Fonction d'evaluation
 def eval_symbreg(individual, n_epochs, pset, trX, trY, teX, teY):
-    n_args = len(trX[0])
+    n_inputs = len(trX[0])
 
     # On transforme l'expression symbolique en une fonction executable auquelle
     # on a ajoute l'impact des coefficients
     func, n_weights = gpdt.compile_with_weights(individual, pset)
 
     # On genere des coefficients aleatoires
-    individual.optimized_weights = [random.normalvariate(0, 1) for _ in range (n_weights)]
+    # TODO : check random
+    individual.optimized_weights = [random.uniform(-1, 1) for _ in range (n_weights)]
 
-    # Optimisation des constantes avec TensorFlow sur l'ensemble train
-    individual_tensor = gpdt.primitivetree_to_tensor(individual, n_args, n_weights, individual.optimized_weights)
-    optimized_weights = gpdt.tensorflow_run(individual_tensor, trX, trY, teX, teY, n_epochs)
+    # Creation du graphe TensorFlow correspondant a l'individu
+    individual_tensor = tfc.tensorflow_init(individual, n_inputs, n_weights, individual.optimized_weights)
 
-    # Evaluation de la MSE sur l'ensemble test
+    # Optimisation des coefficients avec TensorFlow sur l'ensemble train
+    individual.optimized_weights = tfc.tensorflow_run(individual_tensor, trX, trY, teX, teY, n_epochs)
+
+    # Evaluation du MSE sur l'ensemble test
     return mean_squarred_error(func, individual.optimized_weights, teX, teY),
 
 
-# Definition des nouvelles primitives
+# Definition des nouvelles primitives 
 def max_rectifier(x):
     return max(x, 0)
 
@@ -162,8 +252,8 @@ def min_rectifier(x):
 
 
 # On regroupe les primitives dans un ensemble
-def create_primitive_set(n_args):
-    pset = gp.PrimitiveSet("MAIN", n_args)
+def create_primitive_set(n_inputs):
+    pset = gp.PrimitiveSet("MAIN", n_inputs)
     pset.addPrimitive(operator.add, 2)
     pset.addPrimitive(operator.sub, 2)
     pset.addPrimitive(operator.mul, 2)
@@ -174,21 +264,27 @@ def create_primitive_set(n_args):
     return pset
 
 
-def create_toolbox(pset):
+def create_toolbox(hyperparameters, pset):
+    # Recuperation des informations sur les hyperparametres
+    n_tournament = hyperparameters['n_tournament']
+    init_depth = hyperparameters['init_depth']
+
     # Caracteristiques de l'individu et de la fitness
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
     creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
 
     # Creation de la toolbox
     toolbox = base.Toolbox()
-    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=2)
+    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=init_depth)
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-    toolbox.register("evaluate", eval_symbreg, pset=pset, trX=None, trY=None, teX=None, teY=None)
-    toolbox.register("select", tools.selTournament, tournsize=3)
+    toolbox.register("select", tools.selTournament, tournsize=n_tournament)
     toolbox.register("mate", gp.cxOnePoint)
     toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
     toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
+
+    # A mettre a jour plus tard en fonction du pli
+    toolbox.register("evaluate", eval_symbreg, pset=pset, trX=None, trY=None, teX=None, teY=None)
 
     # Controle du bloat
     toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
@@ -197,74 +293,98 @@ def create_toolbox(pset):
     return toolbox
 
 
-# Permet de mettre a jour la fonction d'evaluation pour chaque nouveau fold (train/test)
+# Permet de mettre a jour la fonction d'evaluation pour chaque nouveau pli (train/test)
 def update_toolbox_evaluate(toolbox, pset, trX, trY, teX, teY):
     toolbox.unregister("evaluate")
     toolbox.register("evaluate", eval_symbreg, pset=pset, trX=trX, trY=trY, teX=teX, teY=teY)
+    
+
+########################################################################
+# Fonctions principales pour la GP avec optimisation des coefficients  #
+########################################################################
+
+# deaptensorflow_launch_evolution
+# Cette fonction permet de lancer la phase d'evolution sur un pli
+
+def deaptensorflow_launch_evolution(hyperparameters, toolbox, pset, trX, trY, teX, teY):
+    # Recuperation des informations sur les hyperparametres
+    pop_size = hyperparameters['pop_size']
+    # On en deduit le nombre de generations (etant donne qu'on veut 100 000 evaluations)
+    n_gen = 100000 / pop_size
+
+    # On met a jour la toolbox avec le pli courant
+    update_toolbox_evaluate(toolbox, pset, trX, trY, teX, teY)
+
+    pop = toolbox.population(n=pop_size)
+    hof = tools.HallOfFame(1)
+    
+    # Logbook : statistiques
+    stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
+    stats_size = tools.Statistics(len)
+    mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
+    mstats.register("avg", numpy.mean)
+    mstats.register("std", numpy.std)
+    mstats.register("min", numpy.min)
+    mstats.register("max", numpy.max)
+    
+    # Processus d'evolution proprement dit avec HARM-GP (extended)
+    pop, log = gpdt.harm_weights(pop, toolbox, 0.5, 0.1, n_gen, N_EPOCHS, alpha=0.05, beta=10,
+                                 gamma=0.25, rho=0.9, stats=mstats, halloffame=hof, verbose=True)
+   
+    # On retourne le meilleur individu a la fin du processus d'evolution ains que les logs
+    best_individual = hof[0] 
+    return best_individual, log
 
 
-###################################################################
-# Boucle principale GP (harm) avec optimisation des coefficients  #
-###################################################################
+# deaptensorflow_run
+# Cette fonction sert a faire tourner la programmation genetique + coefficients sur du 5-fold x4
+# On cree tout d'abord les outils permettant de faire de la GP (initialisation)
+# Puis on lance le processus d'evolution de la GP sur chaque pli du 5-fold x4
 
-def deap_run(dataX, dataY, kfold):
+def deaptensorflow_run(hyperparameters, dataX, dataY, kfold):
     random.seed(318)
 
+    # Initialisation de la GP
+    logbook_list = []
+    n_inputs = len(dataX[0])
+    pset = create_primitive_set(n_inputs)
+    toolbox = create_toolbox(hyperparameters, pset)
+
+    # On boucle sur le 5-fold x4 (cross validation)
     mse_sum = 0
     size_sum = 0
-    logbook_list = []
-    n_args = len(dataX[0])
-    pset = create_primitive_set(n_args)
-    toolbox = create_toolbox(pset)
 
-    # On split et boucle sur les 5-fold en updatant l'evaluate
     for tr_index, te_index in kfold:
         trX, teX = dataX[tr_index], dataX[te_index]
         trY, teY = dataY[tr_index], dataY[te_index]
-
-        update_toolbox_evaluate(toolbox, pset, trX, trY, teX, teY)
-
-        pop = toolbox.population(n=POP_SIZE)
-        hof = tools.HallOfFame(1)
         
-        stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
-        stats_size = tools.Statistics(len)
-        mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
-        mstats.register("avg", numpy.mean)
-        mstats.register("std", numpy.std)
-        mstats.register("min", numpy.min)
-        mstats.register("max", numpy.max)
-
-        # Using HARM-GP extended
-        pop, log = gpdt.harm_weights(pop, toolbox, 0.5, 0.1, N_GEN, N_EPOCHS, alpha=0.05, beta=10,
-                                     gamma=0.25, rho=0.9, stats=mstats, halloffame=hof, verbose=True)
-        best_individual = hof[0]
-        mse = best_individual.fitness.values[0]
-        size = best_individual.height
-        mse_sum += mse
-        size_sum += size
-
+        # Evolution de la population et retour du meilleur individu
+        best_individual, log = deaptensorflow_launch_evolution(hyperparameters, toolbox, pset,
+                                                               trX, trY, teX, teY)
+        
+        # On recupere les informations pour faire la moyenne
+        mse_sum += best_individual.fitness.values[0]
+        size_sum += best_individual.height
         logbook_list.append(log)
 
-        # Todo : optimiser les coefficients du best_individual
+        #####################################################################
+        # /!\ TODO : optimiser encore plus loin les coef du best_individual #
+        #####################################################################
 
         print "Coefficients optimaux  : ", best_individual.optimized_weights
         print "MSE : ", mse
-
         # Affichage de l'exp symbolique avec coefficients
         print gpdt.exp_to_string_with_weights(best_individual)
-
         # Affiche l'arbre DEAP representant le modele le plus proche
         # display_graph(best_individual)
         # Affiche les statistiques sous forme de graphe
         # display_stats(log)
 
     logbook = merge_logbook(logbook_list)
-    # print logbook.stream
 
     # On retourne la moyenne du MSE et size obtenue en appliquant la 5-fold cross-validation
-    mse_mean = (mse_sum / 5)[0]
-    size_mean = size_sum / 5
+    mse_mean = (mse_sum / 5.0)[0]
+    size_mean = size_sum / 5.0
 
     return mse_mean, size_mean, logbook
 
@@ -274,10 +394,10 @@ def deap_run(dataX, dataY, kfold):
 ###############
 
 def usage(argv):
-    if len(sys.argv) != 2 or not(sys.argv[1] in load.dict_load): 
+    if len(sys.argv) != 2 or not(sys.argv[1] in load.dataset_list): 
         err_msg = "Usage : python symbreg_deap_tensorflow.py data_name\n"
         err_msg += "Jeux de donnees disponibles : "
-        err_msg += str([key for key in load.dict_load.keys()]) + "\n"
+        err_msg += str([dataset for dataset in load.dataset_list]) + "\n"
         sys.stderr.write(err_msg)
         sys.exit(1)
 
@@ -285,21 +405,24 @@ def usage(argv):
 def main():
     # Chargement des donnees
     usage(sys.argv)
-    arg = sys.argv[1]
-    run = "load." + load.dict_load[arg]
+    dataset = sys.argv[1]
+    run = "load.load_" + dataset + "()"
     dataX, dataY, kfold = eval(run)
+
+    # Recherche des hyperparametres optimaux (ou chargement si deja calcule)
+    hyperparameters = deaptensorflow_hyperparameters(dataset, dataX, dataY, kfold)
 
     # Aprentissage automatique
     begin = time.time()
-    mse, size, logbook = deap_run(dataX, dataY, kfold)
-    deap_runtime = "{:.2f} seconds".format(time.time() - begin)
+    mse, size, logbook = deaptensorflow_run(hyperparameters, dataX, dataY, kfold)
+    runtime = "{:.2f} seconds".format(time.time() - begin)
 
     # On sauvegarde le logbook et le mse en dur
-    logbook_filename = "logbook_" + arg + ".pkl"
+    logbook_filename = "logbook_" + dataset + ".pickle"
     pickle.dump(logbook, open(logbook_filename, "w"))
 
-    log_mse = arg + " | MSE : " + str(mse) + " | size : " + str(size) + " | " + deap_runtime + "\n"
-    file = open("logbook_mse_deaptensorflow.txt", "a")
+    log_mse = dataset + " | MSE : " + str(mse) + " | size : " + str(size) + " | " + runtime + "\n"
+    file = open("./logbook/logbook_mse_deaptensorflow.txt", "a")
     file.write(log_mse)
 
 

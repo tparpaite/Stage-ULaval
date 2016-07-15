@@ -7,42 +7,6 @@ import tensorflow as tf
 from deap import gp
 from deap import tools
 
-
-######################################
-# GP Data structure                  #
-######################################
-
-class IndividualTensor:
-    """ On l'utilise surtout pour memoriser les informations liees a un tenseur
-    """
-
-    __slots__ = ('individual', 'input', 'output', 'weights', 'tensor')
-
-    def __init__(self, individual, input, output, weights):
-        self.individual = individual
-        self.input = input
-        self.output = output
-        self.weights = weights
-        self.tensor = None
-
-    def __eq__(self):
-        """Inutile pour le moment, TODO"""
-        return NotImplemented
-
-    def __str__(self):
-        """Return the expression in a human readable string."""
-
-        string = []
-
-        string.append("Individual :", str(self.individual))
-        string.append("\nInput :", self.input)
-        string.append("\nOutput :", self.output)
-        string.append("\nWeights :", self.weights)
-        string.append("\nTensor :", self.tensor)
-
-        return string
-
-
 #################################################
 # GP Tree compilation functions with weights    #
 #################################################
@@ -186,45 +150,22 @@ def get_arg_index(arg_name):
     return int(arg_name[3])
 
 
-# primitivetree_to_tensor_bis
+# primitivetree_to_tensor
 #
 # Un individu DEAP represente une expression symbolique
 # Pour le modeliser on utilise un arbre de type PrimitiveTree
 # Cette fonction sert a convertir l'arbre en question vers un
-# graphe (un tenseur) interpretable par TensorFlow
-# Plus precisement, on utilise un objet de type IndividualTensor 
-# pour stocker les informations relatives au tenseur
+# graphe qui correspond au modele (fonction de prediction)
 #
 # Parametres :
-# - (PrimitiveTree) individual, l'individu a convertir
-# - (int) n_arg, le nombre d'arguments qu'on passe a la fonction
-# - (int) n_weights, le nombre de coefficients dans l'expression
+# - (IndividualTensor) individual_tensor, l'objet qui contient les infos
+#                      de l'individu a convertir
 #
 # Retourne :
-# - (IndividualTensor) individual_tensor, l'objet associe a l'expression
+# - (Tensor) model, le modele (fonction pred) associe a l'expression
 
-
-def primitivetree_to_tensor(individual, n_arg, n_weights, optimized_weights):
-    # On reinitialise le graphe TensorFlow
-    tf.reset_default_graph()
-
-    # Creation des noeuds inputs et output
-    X = tf.placeholder("float", [None, n_arg])
-    Y = tf.placeholder("float", [None, 1])
-
-    # Creation du tableau contenant les poids (coefficients)
-    # W = tf.Variable(tf.random_normal([n_weights]))
-    W = tf.Variable(optimized_weights)
-
-    # On ajoute de l'information sur l'individu
-    individual_tensor = IndividualTensor(individual, X, Y, W)
-
-    retVal, last_id, w_index = primitivetree_to_tensor_bis(individual_tensor, 0, 0)
-
-    # On met a jour le tenseur proprement dit
-    individual_tensor.tensor = retVal
-
-    return individual_tensor
+def primitivetree_to_tensor(individual_tensor):
+    return primitivetree_to_tensor_bis(individual_tensor, 0, 0)
 
 
 # primitivetree_to_tensor_bis
@@ -258,6 +199,10 @@ def primitivetree_to_tensor_bis(individual_tensor, index, w_index):
         retVal = create_tensor_node(individual_tensor, x, None, None, w_index)
         w_index += 1
         last_id = index
+
+    # Sommet de la recursion
+    if index == 0:
+        return retVal
 
     return retVal, last_id, w_index
 
@@ -321,78 +266,6 @@ def create_tensor_node(individual_tensor, x, left_tree, right_tree, w_index):
 
             # On cree le noeud en choissisant le bon argument (colonne)
             return tf.mul(column, W[w_index])
-
-
-###################################################
-# TensorFlow computation                          #
-###################################################
-
-# Hyperparameters 
-
-BATCH_SIZE = 100
-LEARNING_RATE = 0.01
-
-def tensorflow_run(individual_tensor, trX, trY, teX, teY, n_epochs):
-    # Recuperation des informations
-    prediction = individual_tensor.tensor
-    X = individual_tensor.input
-    Y = individual_tensor.output
-    W = individual_tensor.weights
-
-    dictTrain = {X: trX, Y: trY}
-    dictTest = {X: teX, Y: teY}
-
-    # Define the loss function (MSE)
-    loss = tf.reduce_mean(tf.square(prediction - Y))
-    # Use a RMS gradient descent as optimization method
-    train_op = tf.train.RMSPropOptimizer(LEARNING_RATE, decay=0.9, momentum=0.5, epsilon=1e-10, 
-                                         use_locking=False, name='RMSProp').minimize(loss)
-
-    # Graph infos
-    loss_disp = tf.scalar_summary("MSE (train)", loss)
-    w_info = tf.histogram_summary("Weigts", W)
-    merged_display = tf.merge_summary([loss_disp, w_info])
-
-    # Graph infos on the test dataset
-    loss_test_disp = tf.scalar_summary("MSE (test)", loss)
-
-    # We compile the graph
-    sess = tf.Session()
-
-    # Write graph infos to the specified file
-    # writer = tf.train.SummaryWriter("/tmp/tflogs_computation", sess.graph, flush_secs=10)
-
-    # We must initialize the values of our variables
-    init = tf.initialize_all_variables()
-    sess.run(init)
-
-    # Main loop
-    for i in range(n_epochs):
-        ## Display informations and plot them in tensorboard 
-        # begin = time.time()
-
-        # result = sess.run(merged_display, feed_dict=dictTrain)
-        # writer.add_summary(result, i)
-        # result = sess.run(loss_test_disp, feed_dict=dictTest)
-        # writer.add_summary(result, i)
-        # writer.flush()
-        
-        # print "[{}]".format(i), " "
-        # trainPerf = sess.run(loss, feed_dict=dictTrain)
-        # testPerf = sess.run(loss, feed_dict=dictTest)
-        # print "Train/Test MSE : {:.10f} / {:.10f}".format(trainPerf, testPerf), " "
-    
-        # This is the actual training
-        # We divide the dataset in mini-batches
-        for start, end in zip(range(0, len(trX), BATCH_SIZE),
-                              range(BATCH_SIZE, len(trX)+1, BATCH_SIZE)):
-
-            # For each batch, we train the network and update its weights
-            sess.run(train_op, feed_dict={X: trX[start:end], Y: trY[start:end]})
-
-        # print "(done in {:.2f} seconds)".format(time.time() - begin)
-
-    return sess.run(W)
 
 
 ####################################################################

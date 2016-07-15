@@ -1,3 +1,11 @@
+#######################################################################
+# load_utils.py                                                       #
+# Ce module permet de charger des donnees existantes                  #
+# Il permet egalement de creer un generateur d'indices pour realiser  #
+# une 5-fold x4 cross-validation                                      #
+#######################################################################
+
+
 import numpy as np
 import random as rd
 
@@ -5,11 +13,10 @@ from sklearn import datasets
 from sklearn import cross_validation as cv
 
 # Chemin relatif jusqu'aux dataset
-PREFIX = "../../"
+PREFIX = "../../datasets/"
 
-# Dictionnaire faisant le lien entre l'argument de main et la fonction de load
-dict_load = {'polynome':'loadPolynome()', 'boston':'loadBoston()', 'airfoil':'loadAirfoil()', 'onlinepop':'loadOnlinepop()', 'compactiv':'loadCompactiv()', 'spacega':'loadSpacega()'}
-
+# Liste des jeux de donnees
+dataset_list = {'polynome', 'boston', 'airfoil', 'onlinepop', 'compactiv', 'spacega'}
 
 # GEN
 # La fonction generatrice sert a generer les indices
@@ -19,7 +26,7 @@ dict_load = {'polynome':'loadPolynome()', 'boston':'loadBoston()', 'airfoil':'lo
 # On retourne ensuite ce k-fold
 # NB : retourne en fait un generateur
 
-def genIndex(n_elem):
+def gen_index(n_elem):
     kf_array = []
 
     for random_state in [42, 1994, 69, 314]:
@@ -28,29 +35,24 @@ def genIndex(n_elem):
     return kf_array
 
 
-def loadPolynome():
+def load_polynome():
     # Creation des donnees artificielles representant un polynome
-    dataX = []
-    dataY = []
+    path = PREFIX + "polynome.csv"
+    polynome = np.genfromtxt(path, delimiter=',')
+    dataX = polynome[:, [0]]
+    dataY = polynome[:, [1]]
 
-    for i in range(-10,10):
-        x = i/10.0
-        y = x**4 + x**3 + x**2 + x
-        dataX.append([x])
-        dataY.append([y])
-
-    # Convertion en numpy array
-    dataX = np.array(dataX)
-    dataY = np.array(dataY)
+    print dataX
+    print dataY
 
     # Generation des indices
-    kf_array = genIndex(len(dataX))
+    kf_array = gen_index(len(dataX))
 
     # Temporairement : on ne run que sur un seul 5-fold pour le moment
     return dataX, dataY, kf_array[0]
     
 
-def loadBoston():
+def load_boston():
     # Recuperation des donnees
     boston = datasets.load_boston()
     dataX = boston.data
@@ -60,59 +62,59 @@ def loadBoston():
     dataY = np.reshape(dataY, (len(dataY), -1))
     
     # Generation des indices
-    kf_array = genIndex(len(dataX))
+    kf_array = gen_index(len(dataX))
     
     # Temporairement : on ne run que sur un seul 5-fold pour le moment
     return dataX, dataY, kf_array[0]
 
 
-def loadAirfoil():
+def load_airfoil():
     # Recuperation des donnees du fichier csv
-    path = PREFIX + "res/airfoil/airfoil.dat"
+    path = PREFIX + "airfoil.data"
     airfoil = np.genfromtxt(path, delimiter='\t', skip_header=1)
     dataX = airfoil[:, :5]
     dataY = airfoil[:, -1:]
 
     # Generation des indices
-    kf_array = genIndex(len(dataX))
+    kf_array = gen_index(len(dataX))
     
     return dataX, dataY, kf_array[0]
 
 
-def loadOnlinepop():
+def load_onlinepop():
     # Recuperation des donnees du fichier csv
-    path = PREFIX + "res/OnlineNewsPopularity/OnlineNewsPopularity.csv"
+    path = PREFIX + "onlinepop.csv"
     onlinepop = np.genfromtxt(path, delimiter=',', skip_header=1)
     dataX = onlinepop[:, 2:60]
     dataY = onlinepop[:, -1:]
 
     # Generation des indices
-    kf_array = genIndex(len(dataX))
+    kf_array = gen_index(len(dataX))
     
     return dataX, dataY, kf_array[0]
 
 
-def loadCompactiv():
+def load_compactiv():
     # Recuperation des donnees du fichier csv
-    path = PREFIX + "res/compactiv/compactiv.data"
+    path = PREFIX + "compactiv.data"
     compactiv = np.genfromtxt(path, delimiter=' ')
     dataX = compactiv[:, :21]
     dataY = compactiv[:, -1:]
 
     # Generation des indices
-    kf_array = genIndex(len(dataX))
+    kf_array = gen_index(len(dataX))
 
     return dataX, dataY, kf_array[0]
 
 
-def loadSpacega():
+def load_spacega():
     # Recuperation des donnees du fichier csv
-    path = PREFIX + "res/spacega/spacega.csv"
+    path = PREFIX + "spacega.csv"
     spacega = np.genfromtxt(path, delimiter=',')
     dataX = spacega[:, 1:]
     dataY = spacega[:, [0]]
 
     # Generation des indices
-    kf_array = genIndex(len(dataX))
+    kf_array = gen_index(len(dataX))
 
     return dataX, dataY, kf_array[0]
