@@ -1,14 +1,17 @@
 #!/bin/bash
+#PBS -N GP classique
+#PBS -A suj-571-aa
+#PBS -l nodes=1:ppn=8
+#PBS -l walltime=12:00:00
+#PBS -t [0-11]
+#PBS -M tparpaite@gmail.com
+#PBS -m bea
 
-rm -f logbook*
+cd stage/Stage-ULaval/src/symbreg_deap
 
-data_list="polynome boston airfoil onlinepop compactiv spacega"
-
-for data in $data_list; do
-    echo "Using classic genetic programming with dataset : $data..."
-    python symbreg_deap.py $data
+for i in $(seq 0 11)
+do
+    array_job_symbreg_deap.sh $MOAB_JOBARRAYINDEX &
 done
 
-echo "Script finished, you can check logbook_mse to see results"
-
-exit 0
+wait
