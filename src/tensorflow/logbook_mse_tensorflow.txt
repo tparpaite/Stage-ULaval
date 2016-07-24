@@ -44,3 +44,8 @@ boston | MSE : 20.2301970482 | 126.99 seconds
 boston | MSE : 13.0949244738 | 251.97 seconds
 boston | MSE : 12.8791065693 | 244.99 seconds
 boston | MSE : 8.0521780014 | 113.33 seconds
+keijzer_6 | MSE : 0.0053312815704 | 53.34 seconds
+bioavailability | MSE : 579.887062073 | 377.53 seconds
+vladislavleva_4 | MSE : 0.00877990685403 | 137.17 seconds
+pagie_1 | MSE : 0.004027587155 | 151.62 seconds
+nguyen_7 | MSE : 0.00029563523567 | 368.86 seconds

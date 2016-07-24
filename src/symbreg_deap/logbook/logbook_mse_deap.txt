@@ -1,3 +1,8 @@
-boston | MSE : 57.3931797724 | size : 5 | 69.38 seconds
-airfoil | MSE : 1003.31748698 | size : 13 | 196.24 seconds
-polynome | MSE : 0.004041100625 | size : 6 | 20.65 seconds
+keijzer_6 | MSE : 0.776423840466 | size : 5.05 | 41.04 seconds
+vladislavleva_4 | MSE : 0.201730860379 | size : 8.15 | 139.58 seconds
+nguyen_7 | MSE : 0.0980603104157 | size : 4.85 | 131.63 seconds
+pagie_1 | MSE : 0.41516266659 | size : 1.75 | 126.45 seconds
+polynome | MSE : 0.004286634 | size : 6.35 | 21.25 seconds
+bioavailability | MSE : 1436.82975013 | size : 8.95 | 311.82 seconds
+boston | MSE : 57.3931797724 | size : 5.95 | 174.97 seconds
+airfoil | MSE : 1003.31748698 | size : 13.2 | 573.13 seconds

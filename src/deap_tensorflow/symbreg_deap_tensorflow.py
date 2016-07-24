@@ -5,7 +5,7 @@ import time
 import operator
 import math
 import random
-import numpy 
+import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 import pygraphviz as pgv
@@ -15,6 +15,7 @@ import tensorflow_computation as tfc
 
 sys.path.append('../../')
 from datasets import load_utils_tmp as load
+from stats import stats_to_graph as stats
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -26,10 +27,11 @@ from deap import gp
 # Hyperparametres  #
 ####################
 
-# Note : on deduit le nombre de generations de la taille de la population
-# (sachant qu'on veut 100 000 evaluations)
-
+NEVALS_TOTAL = 10000
 N_EPOCHS = 150
+
+# Chemin relatif du repertoire logbook
+LOGBOOK_PATH = "../../stats/logbook/"
 
 classical_hyperparameters = {
     'pop_size': 300,
@@ -42,18 +44,22 @@ classical_hyperparameters = {
 # Optimisation des hyperparametres   #
 ######################################
 
-def deaptensorflow_hyperparameters(dataset, dataX, dataY, kfold):
-    filepath = "./hyperparameters/hypers_deaptensorflow_" + dataset + ".pickle"
+def deaptensorflow_hyperparameters(pset, dataset, dataX, dataY, kfold):
+    file_hypers = "./hyperparameters/hypers_gpcoef_" + dataset + ".pickle"
 
     # On regarde si on n'a pas deja calcule les hyperparametres optimaux
-    if os.path.exists(filepath):
-        with open(filepath, 'rb') as f:
+    if os.path.exists(file_hypers):
+        with open(file_hypers, 'rb') as f:
             best_params = pickle.load(f)
         return best_params
         
     ######################################################
     # Debut de la recherche des hyperparametres optimaux #
     ######################################################
+
+    # On cree le fichier de log
+    file_log = LOGBOOK_PATH + "logbook_hyperparameters/logbook_hypers_gpcoef_" + dataset + ".txt"
+    fd = open(file_log, 'w')
 
     # On recupere le premier pli
     n_inputs = len(dataX[0])
@@ -92,103 +98,38 @@ def deaptensorflow_hyperparameters(dataset, dataX, dataY, kfold):
         }
         
         # Initialisation de la GP
-        pset = create_primitive_set(n_inputs)
         toolbox = create_toolbox(hyperparameters, pset)
+
+        # Logbook : statistiques
+        stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
+        stats_size = tools.Statistics(len)
+        mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
+        mstats.register("avg", np.mean)
+        mstats.register("std", np.std)
+        mstats.register("min", np.min)
+        mstats.register("max", np.max)
         
         print hyperparameters
+        
         # Evolution de la population et retour du meilleur individu
         best_individual, log = deaptensorflow_launch_evolution(hyperparameters, toolbox, pset,
-                                                               trX, trY, teX, teY)
+                                                               mstats, trX, trY, teX, teY)
         
         # On recupere les informations du meilleur individu
-        hyperparameters['mse'] = best_individual.fitness.values[0]
+        hyperparameters['mse'] = best_individual.fitness.values[0][0]
         
-        # Sauvegarde des hyperparametres s'ils sont meilleurs
+        # On ecrit les hyperparametres et le mse associe dans le logbook dedie
+        fd.write(str(hyperparameters) + "\n")
+
+        # Sauvegarde des hyperparametres en tant que best s'ils sont meilleurs
         if hyperparameters['mse'] < best_params['mse']:
             best_params = hyperparameters.copy()
 
     # On sauvegarde les hyperparametres optimaux en dur avec pickle
-    with open(filepath, 'wb') as f:
+    with open(file_hypers, 'wb') as f:
         pickle.dump(best_params, f)
 
     return best_params
-
-
-###################################################
-# Definition des fonctions d'affichage DEAP       #
-###################################################
-
-def display_graph(expr):
-    nodes, edges, labels = gp.graph(expr)
-
-    g = nx.Graph()
-    g.add_nodes_from(nodes)
-    g.add_edges_from(edges)
-
-    # On recupere la position des noeuds
-    pos =  nx.drawing.nx_agraph.graphviz_layout(g, prog="dot")
-
-    nx.draw_networkx_nodes(g, pos)
-    nx.draw_networkx_edges(g, pos)
-    nx.draw_networkx_labels(g, pos, labels)
-    plt.show()
-
-
-def display_stats(logbook):
-    # Recuperation des donnes a partir du logbook
-    gen = logbook.select("gen")
-    fit_mins = logbook.chapters["fitness"].select("min")
-    size_avgs = logbook.chapters["size"].select("avg")
-
-    # On cree la courbe qui represente l'evolution de la fitness en fonction des generations
-    fig, ax1 = plt.subplots()
-    line1 = ax1.plot(gen, fit_mins, "b-", label="Minimum Fitness")
-    ax1.set_xlabel("Generation")
-    ax1.set_ylabel("Fitness", color="b")
-    for tl in ax1.get_yticklabels():
-        tl.set_color("b")
-
-    # On cree la courbe qui represente l'evolution de la taille des individus
-    ax2 = ax1.twinx()
-    line2 = ax2.plot(gen, size_avgs, "r-", label="Average Size")
-    ax2.set_ylabel("Size", color="r")
-    for tl in ax2.get_yticklabels():
-        tl.set_color("r")
-
-    # Affichage graphique
-    lns = line1 + line2
-    labs = [l.get_label() for l in lns]
-    ax1.legend(lns, labs, loc="upper center")
-
-    plt.show()
-
-
-def merge_logbook(logbook_list):
-    # On suppose que les logbooks ont le meme nombre d'entrees
-    n_entry = len(logbook_list[0])
-    
-    # Le logbook qui contient les entrees fusionnees
-    res = tools.Logbook()
-
-    # Les champs a fusionner
-    chapters = ["fitness", "size"]
-    fields = ["avg", "min", "max", "std"]
-
-    # On realise la fusion proprement dite
-    for i in range(n_entry):
-        record = {}
-        # Moyenne du nombre d'evaluations
-        nevals = numpy.mean([logbook[i]["nevals"] for logbook in logbook_list])
-
-        # Moyenne de chaque champ pour chaque chapitre
-        for chapter in chapters:
-            record[chapter] = {}
-            for field in fields:
-                record[chapter][field] = numpy.mean([logbook.chapters[chapter][i][field] for logbook in logbook_list])
-
-        res.record(gen=i, nevals=nevals, **record)
-
-    return res
 
 
 ########################################################################
@@ -207,7 +148,7 @@ def mean_squarred_error(func, optimized_weights, teX, teY):
 
 
 # Fonction d'evaluation
-def eval_symbreg(individual, n_epochs, pset, trX, trY, teX, teY):
+def eval_symbreg(individual, pset, trX, trY, teX, teY):
     n_inputs = len(trX[0])
 
     # On transforme l'expression symbolique en une fonction executable auquelle
@@ -222,7 +163,7 @@ def eval_symbreg(individual, n_epochs, pset, trX, trY, teX, teY):
     individual_tensor = tfc.tensorflow_init(individual, n_inputs, n_weights, individual.optimized_weights)
 
     # Optimisation des coefficients avec TensorFlow sur l'ensemble train
-    individual.optimized_weights = tfc.tensorflow_run(individual_tensor, trX, trY, teX, teY, n_epochs)
+    individual.optimized_weights = tfc.tensorflow_run(individual_tensor, trX, trY, teX, teY, N_EPOCHS)
 
     # Evaluation du MSE sur l'ensemble test
     return mean_squarred_error(func, individual.optimized_weights, teX, teY),
@@ -292,11 +233,9 @@ def update_toolbox_evaluate(toolbox, pset, trX, trY, teX, teY):
 # deaptensorflow_launch_evolution
 # Cette fonction permet de lancer la phase d'evolution sur un pli
 
-def deaptensorflow_launch_evolution(hyperparameters, toolbox, pset, trX, trY, teX, teY):
+def deaptensorflow_launch_evolution(hyperparameters, toolbox, pset, mstats, trX, trY, teX, teY):
     # Recuperation des informations sur les hyperparametres
     pop_size = hyperparameters['pop_size']
-    # On en deduit le nombre de generations (etant donne qu'on veut 100 000 evaluations)
-    n_gen = 100000 / pop_size
 
     # On met a jour la toolbox avec le pli courant
     update_toolbox_evaluate(toolbox, pset, trX, trY, teX, teY)
@@ -304,18 +243,9 @@ def deaptensorflow_launch_evolution(hyperparameters, toolbox, pset, trX, trY, te
     pop = toolbox.population(n=pop_size)
     hof = tools.HallOfFame(1)
     
-    # Logbook : statistiques
-    stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
-    stats_size = tools.Statistics(len)
-    mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
-    mstats.register("avg", numpy.mean)
-    mstats.register("std", numpy.std)
-    mstats.register("min", numpy.min)
-    mstats.register("max", numpy.max)
-    
     # Processus d'evolution proprement dit avec HARM-GP (extended)
-    pop, log = gpdt.harm_weights(pop, toolbox, 0.5, 0.1, n_gen, N_EPOCHS, alpha=0.05, beta=10,
-                                 gamma=0.25, rho=0.9, stats=mstats, halloffame=hof, verbose=True)
+    pop, log = gpdt.harm(pop, toolbox, 0.5, 0.1, NEVALS_TOTAL, alpha=0.05, beta=10,
+                         gamma=0.25, rho=0.9, stats=mstats, halloffame=hof, verbose=True)
    
     # On retourne le meilleur individu a la fin du processus d'evolution ains que les logs
     best_individual = hof[0] 
@@ -327,14 +257,21 @@ def deaptensorflow_launch_evolution(hyperparameters, toolbox, pset, trX, trY, te
 # On cree tout d'abord les outils permettant de faire de la GP (initialisation)
 # Puis on lance le processus d'evolution de la GP sur chaque pli du 5-fold x4
 
-def deaptensorflow_run(hyperparameters, dataX, dataY, kfold):
+def deaptensorflow_run(hyperparameters, pset, dataX, dataY, kfold):
     random.seed(318)
 
     # Initialisation de la GP
     logbook_list = []
-    n_inputs = len(dataX[0])
-    pset = create_primitive_set(n_inputs)
     toolbox = create_toolbox(hyperparameters, pset)
+
+    # Logbook : statistiques
+    stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
+    stats_size = tools.Statistics(len)
+    mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
+    mstats.register("avg", np.mean)
+    mstats.register("std", np.std)
+    mstats.register("min", np.min)
+    mstats.register("max", np.max)
 
     # On boucle sur le 5-fold x4 (cross validation)
     mse_sum = 0
@@ -346,10 +283,10 @@ def deaptensorflow_run(hyperparameters, dataX, dataY, kfold):
         
         # Evolution de la population et retour du meilleur individu
         best_individual, log = deaptensorflow_launch_evolution(hyperparameters, toolbox, pset,
-                                                               trX, trY, teX, teY)
+                                                               mstats, trX, trY, teX, teY)
     
         # On recupere les informations pour faire la moyenne
-        mse_sum += best_individual.fitness.values[0]
+        mse_sum += best_individual.fitness.values[0][0]
         size_sum += best_individual.height
         logbook_list.append(log)
 
@@ -359,17 +296,14 @@ def deaptensorflow_run(hyperparameters, dataX, dataY, kfold):
     
         print "Coefficients optimaux  : ", best_individual.optimized_weights
         print "MSE : ", mse
+
         # Affichage de l'exp symbolique avec coefficients
         print gpdt.exp_to_string_with_weights(best_individual)
-        # Affiche l'arbre DEAP representant le modele le plus proche
-        # display_graph(best_individual)
-        # Affiche les statistiques sous forme de graphe
-        # display_stats(log)
     
-    logbook = merge_logbook(logbook_list)
+    logbook = stats.merge_logbook(logbook_list)
 
     # On retourne la moyenne du MSE et size obtenue en appliquant la 5-fold cross-validation
-    mse_mean = (mse_sum / 5.0)[0]
+    mse_mean = mse_sum / 5.0
     size_mean = size_sum / 5.0
 
     return mse_mean, size_mean, logbook
@@ -395,21 +329,25 @@ def main():
     run = "load.load_" + dataset + "()"
     dataX, dataY, kfold = eval(run)
 
+    # On creer le pset ici, sinon on a une erreur pour la creation des constantes ephemeres
+    n_args = len(dataX[0])
+    pset = create_primitive_set(n_args)
+
     # Recherche des hyperparametres optimaux (ou chargement si deja calcule)
-    hyperparameters = deaptensorflow_hyperparameters(dataset, dataX, dataY, kfold)
+    hyperparameters = deaptensorflow_hyperparameters(pset, dataset, dataX, dataY, kfold)
 
     # Aprentissage automatique
     begin = time.time()
-    mse, size, logbook = deaptensorflow_run(hyperparameters, dataX, dataY, kfold)
+    mse, size, logbook = deaptensorflow_run(hyperparameters, pset, dataX, dataY, kfold)
     runtime = "{:.2f} seconds".format(time.time() - begin)
 
     # On sauvegarde le logbook et le mse en dur
-    logbook_filename = "logbook_" + dataset + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpcoef_" + dataset + ".pickle"
     pickle.dump(logbook, open(logbook_filename, "w"))
-
     log_mse = dataset + " | MSE : " + str(mse) + " | size : " + str(size) + " | " + runtime + "\n"
-    file = open("./logbook/logbook_mse_deaptensorflow.txt", "a")
-    file.write(log_mse)
+    logbook_filename = LOGBOOK_PATH + "logbook_mse/logbook_mse_gpcoef.txt"
+    fd = open(logbook_filename, "a")
+    fd.write(log_mse)
 
 
 if __name__ == "__main__":

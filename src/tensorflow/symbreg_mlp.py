@@ -14,7 +14,7 @@ from datasets import load_utils as load
 ####################
 
 BATCH_SIZE = 50
-NUM_EPOCHS = 300
+NUM_EPOCHS = 150
 
 
 ######################################

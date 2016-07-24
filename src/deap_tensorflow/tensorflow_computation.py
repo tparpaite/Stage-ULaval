@@ -128,11 +128,11 @@ def tensorflow_run(individual_tensor, trX, trY, teX, teY, n_epochs):
     sess.run(init)
 
     ################# TMP #################
-    X = individual_tensor.input
-    Y = individual_tensor.output
-    mse = individual_tensor.mse
-    dictTest = { X: teX, Y: teY }
-    before = sess.run(mse, feed_dict=dictTest)
+    # X = individual_tensor.input
+    # Y = individual_tensor.output
+    # mse = individual_tensor.mse
+    # dictTest = { X: teX, Y: teY }
+    # before = sess.run(mse, feed_dict=dictTest)
     ################# TMP #################
 
     # Initialisation avec une valeur de mse maximale
@@ -147,7 +147,7 @@ def tensorflow_run(individual_tensor, trX, trY, teX, teY, n_epochs):
             best_weights = current_weights
 
     ################# TMP #################
-    print "Learning rate : " + str(best_weights['learning_rate']) + " | MSE : Before " + str(before) + " / After " + str(best_weights['mse'])
+    # print "Learning rate : " + str(best_weights['learning_rate']) + " | MSE : Before " + str(before) + " / After " + str(best_weights['mse'])
     ################# TMP #################
 
     # On retourne les poids optimaux obtenus avec le learning rate adequat

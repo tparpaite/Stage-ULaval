@@ -1,0 +1,2 @@
+{'n_tournament': 3, 'init_depth': 4, 'pop_size': 200, 'mse': 82.402066306372532}
+{'n_tournament': 3, 'init_depth': 5, 'pop_size': 200, 'mse': 31.74331775274095}

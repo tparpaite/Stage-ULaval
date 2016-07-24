@@ -1,17 +1,16 @@
 import sys
+import os
 import pickle
 import time
 import operator
 import math
 import random
-import numpy 
-import matplotlib.pyplot as plt
-import networkx as nx
-import pygraphviz as pgv
+import numpy as np
 import tensorflow as tf
 
 sys.path.append('../../')
 from datasets import load_utils as load
+from stats import stats_to_graph as stats
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -19,87 +18,316 @@ from deap import tools
 from deap import gp
 
 
-# Hyperparameters
+####################
+# Hyperparametres  #
+####################
 
 POP_SIZE = 300
-N_GEN = 40
+NEVALS_TOTAL = 10000
+
+# Chemin relatif du repertoire logbook
+LOGBOOK_PATH = "../../stats/logbook/"
 
 
-###################################################
-# Definition des fonctions d'affichage DEAP       #
-###################################################
+######################################
+# Optimisation des hyperparametres   #
+######################################
 
-def display_graph(expr):
-    nodes, edges, labels = gp.graph(expr)
+def hyperparameters_optimization(pset, dataset, dataX, dataY, kf_array):
+    file_hypers = "./hyperparameters/hypers_gpharm_" + dataset + ".pickle"
 
-    g = nx.Graph()
-    g.add_nodes_from(nodes)
-    g.add_edges_from(edges)
+    # On regarde si on n'a pas deja calcule les hyperparametres optimaux
+    if os.path.exists(file_hypers):
+        with open(file_hypers, 'rb') as f:
+            best_params = pickle.load(f)
+        return best_params
+        
+    ######################################################
+    # Debut de la recherche des hyperparametres optimaux #
+    ######################################################
 
-    # On recupere la position des noeuds
-    pos =  nx.drawing.nx_agraph.graphviz_layout(g, prog="dot")
+    # On cree le fichier de log
+    file_log = LOGBOOK_PATH + "logbook_hyperparameters/logbook_hypers_gpharm_" + dataset + ".txt"
+    fd = open(file_log, 'w')
 
-    nx.draw_networkx_nodes(g, pos)
-    nx.draw_networkx_edges(g, pos)
-    nx.draw_networkx_labels(g, pos, labels)
-    plt.show()
-
-
-def display_stats(logbook):
-    # Recuperation des donnes a partir du logbook
-    gen = logbook.select("gen")
-    fit_mins = logbook.chapters["fitness"].select("min")
-    size_avgs = logbook.chapters["size"].select("avg")
-
-    # On cree la courbe qui represente l'evolution de la fitness en fonction des generations
-    fig, ax1 = plt.subplots()
-    line1 = ax1.plot(gen, fit_mins, "b-", label="Minimum Fitness")
-    ax1.set_xlabel("Generation")
-    ax1.set_ylabel("Fitness", color="b")
-    for tl in ax1.get_yticklabels():
-        tl.set_color("b")
-
-    # On cree la courbe qui represente l'evolution de la taille des individus
-    ax2 = ax1.twinx()
-    line2 = ax2.plot(gen, size_avgs, "r-", label="Average Size")
-    ax2.set_ylabel("Size", color="r")
-    for tl in ax2.get_yticklabels():
-        tl.set_color("r")
-
-    # Affichage graphique
-    lns = line1 + line2
-    labs = [l.get_label() for l in lns]
-    ax1.legend(lns, labs, loc="upper center")
-
-    plt.show()
-
-
-def merge_logbook(logbook_list):
-    # On suppose que les logbooks ont le meme nombre d'entrees
-    n_entry = len(logbook_list[0])
+    # On recupere le premier pli
+    kfold = list(kf_array[0])
+    tr_index, te_index = kfold[0]
+    trX, teX = dataX[tr_index], dataX[te_index]
+    trY, teY = dataY[tr_index], dataY[te_index]
     
-    # Le logbook qui contient les entrees fusionnees
-    res = tools.Logbook()
+    # Initialisation avec une valeur de mse maximale
+    best_params = { 'mse': sys.float_info.max }
 
-    # Les champs a fusionner
-    chapters = ["fitness", "size"]
-    fields = ["avg", "min", "max", "std"]
+    # Grid search 
+    # Taille de la population
+    pop_size_grid = [200, 500, 1000, 2000, 5000]
 
-    # On realise la fusion proprement dite
-    for i in range(n_entry):
-        record = {}
-        # Moyenne du nombre d'evaluations
-        nevals = numpy.mean([logbook[i]["nevals"] for logbook in logbook_list])
+    # Nombre de participants a chaque ronde du tournoi
+    n_tournament_grid = [3, 4, 5, 6, 7]
 
-        # Moyenne de chaque champ pour chaque chapitre
-        for chapter in chapters:
-            record[chapter] = {}
-            for field in fields:
-                record[chapter][field] = numpy.mean([logbook.chapters[chapter][i][field] for logbook in logbook_list])
+    # Profondeur a l'initilisation
+    init_depth_grid = [4, 5, 6, 7]
 
-        res.record(gen=i, nevals=nevals, **record)
+    # Creation des 100 combinaisons possibles
+    zipper = []
+    for pop_size in pop_size_grid:
+        for n_tournament in n_tournament_grid:
+            for init_depth in init_depth_grid:
+                zipper.append([pop_size, n_tournament, init_depth]) 
 
-    return res
+    # On lance 100 fois l'entrainement sur le pli avec toutes les combinaisons d'hyperparametres
+    for pop_size, n_tournament, init_depth in zipper:    
+        # On stocke les hyperparametres dans un dictionnaire
+        hyperparameters = {
+            'pop_size': pop_size,
+            'n_tournament': n_tournament,
+            'init_depth': init_depth,
+        }
+        
+        # Initialisation de la GP
+        toolbox = create_toolbox(hyperparameters, pset)
+
+        # Logbook : statistiques
+        stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
+        stats_size = tools.Statistics(len)
+        mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
+        mstats.register("avg", np.mean)
+        mstats.register("std", np.std)
+        mstats.register("min", np.min)
+        mstats.register("max", np.max)
+        
+        print hyperparameters
+        
+        # Evolution de la population et retour du meilleur individu
+        best_individual, log = deap_launch_evolution(hyperparameters, toolbox, pset,
+                                                     mstats, trX, trY, teX, teY)
+        
+        # On recupere les informations du meilleur individu
+        hyperparameters['mse'] = best_individual.fitness.values[0][0]
+        
+        # On ecrit les hyperparametres et le mse associe dans le logbook dedie
+        fd.write(str(hyperparameters) + "\n")
+
+        # Sauvegarde des hyperparametres en tant que best s'ils sont meilleurs
+        if hyperparameters['mse'] < best_params['mse']:
+            best_params = hyperparameters.copy()
+
+    # On sauvegarde les hyperparametres optimaux en dur avec pickle
+    with open(file_hypers, 'wb') as f:
+        pickle.dump(best_params, f)
+
+    return best_params
+
+
+##########################################################################################
+# GP harm                                                                                #
+# On modidife l'algorithme pour qu'il s'arrete lorsqu'il atteint un nombre d'evaluation  #
+# donne au lieu s'arreter a une generation precise                                       #
+##########################################################################################
+
+def harm(population, toolbox, cxpb, mutpb, nevals_total, alpha, 
+         beta, gamma, rho, nbrindsmodel=-1, mincutoff=20,
+         stats=None, halloffame=None, verbose=__debug__):
+    """Implement bloat control on a GP evolution using HARM-GP, as defined in
+    [Gardner2015]. It is implemented in the form of an evolution algorithm
+    (similar to :func:`~deap.algorithms.eaSimple`).
+
+    :param population: A list of individuals.
+    :param toolbox: A :class:`~deap.base.Toolbox` that contains the evolution
+                    operators.
+    :param cxpb: The probability of mating two individuals.
+    :param mutpb: The probability of mutating an individual.
+    :param ngen: The number of generation.
+    :param alpha: The HARM *alpha* parameter.
+    :param beta: The HARM *beta* parameter.
+    :param gamma: The HARM *gamma* parameter.
+    :param rho: The HARM *rho* parameter.
+    :param nbrindsmodel: The number of individuals to generate in order to
+                            model the natural distribution. -1 is a special
+                            value which uses the equation proposed in
+                            [Gardner2015] to set the value of this parameter :
+                            max(2000, len(population))
+    :param mincutoff: The absolute minimum value for the cutoff point. It is
+                        used to ensure that HARM does not shrink the population
+                        too much at the beginning of the evolution. The default
+                        value is usually fine.
+    :param stats: A :class:`~deap.tools.Statistics` object that is updated
+                  inplace, optional.
+    :param halloffame: A :class:`~deap.tools.HallOfFame` object that will
+                       contain the best individuals, optional.
+    :param verbose: Whether or not to log the statistics.
+    :returns: The final population
+    :returns: A class:`~deap.tools.Logbook` with the statistics of the
+              evolution
+
+    This function expects the :meth:`toolbox.mate`, :meth:`toolbox.mutate`,
+    :meth:`toolbox.select` and :meth:`toolbox.evaluate` aliases to be
+    registered in the toolbox.
+
+    .. note::
+       The recommended values for the HARM-GP parameters are *n_epochs=100*, *alpha=0.05*,
+       *beta=10*, *gamma=0.25*, *rho=0.9*. However, these parameters can be
+       adjusted to perform better on a specific problem (see the relevant
+       paper for tuning information). The number of individuals used to
+       model the natural distribution and the minimum cutoff point are less
+       important, their default value being effective in most cases.
+
+    .. [Gardner2015] M.-A. Gardner, C. Gagne, and M. Parizeau, Controlling
+        Code Growth by Dynamically Shaping the Genotype Size Distribution,
+        Genetic Programming and Evolvable Machines, 2015,
+        DOI 10.1007/s10710-015-9242-8
+
+    """
+    def _genpop(n, pickfrom=[], acceptfunc=lambda s: True, producesizes=False):
+        # Generate a population of n individuals, using individuals in
+        # *pickfrom* if possible, with a *acceptfunc* acceptance function.
+        # If *producesizes* is true, also return a list of the produced
+        # individuals sizes.
+        # This function is used 1) to generate the natural distribution
+        # (in this case, pickfrom and acceptfunc should be let at their
+        # default values) and 2) to generate the final population, in which
+        # case pickfrom should be the natural population previously generated
+        # and acceptfunc a function implementing the HARM-GP algorithm.
+        producedpop = []
+        producedpopsizes = []
+        while len(producedpop) < n:
+            if len(pickfrom) > 0:
+                # If possible, use the already generated
+                # individuals (more efficient)
+                aspirant = pickfrom.pop()
+                if acceptfunc(len(aspirant)):
+                    producedpop.append(aspirant)
+                    if producesizes:
+                        producedpopsizes.append(len(aspirant))
+            else:
+                opRandom = random.random()
+                if opRandom < cxpb:
+                    # Crossover
+                    aspirant1, aspirant2 = toolbox.mate(*map(toolbox.clone,
+                                                             toolbox.select(population, 2)))
+                    del aspirant1.fitness.values, aspirant2.fitness.values
+                    if acceptfunc(len(aspirant1)):
+                        producedpop.append(aspirant1)
+                        if producesizes:
+                            producedpopsizes.append(len(aspirant1))
+
+                    if len(producedpop) < n and acceptfunc(len(aspirant2)):
+                        producedpop.append(aspirant2)
+                        if producesizes:
+                            producedpopsizes.append(len(aspirant2))
+                else:
+                    aspirant = toolbox.clone(toolbox.select(population, 1)[0])
+                    if opRandom - cxpb < mutpb:
+                        # Mutation
+                        aspirant = toolbox.mutate(aspirant)[0]
+                        del aspirant.fitness.values
+                    if acceptfunc(len(aspirant)):
+                        producedpop.append(aspirant)
+                        if producesizes:
+                            producedpopsizes.append(len(aspirant))
+
+        if producesizes:
+            return producedpop, producedpopsizes
+        else:
+            return producedpop
+
+    halflifefunc = lambda x: (x * float(alpha) + beta)
+    if nbrindsmodel == -1:
+        nbrindsmodel = max(2000, len(population))
+
+    logbook = tools.Logbook()
+    logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
+
+    # FIRST GENERATION
+    gen = 0
+    nevals = 0
+
+    # Evaluate the individuals with an invalid fitness
+    invalid_ind = [ind for ind in population if not ind.fitness.valid]
+    fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+    for ind, fit in zip(invalid_ind, fitnesses):
+        ind.fitness.values = fit
+
+        
+    # Update the hall of fame with the generated individuals
+    if halloffame is not None:
+        halloffame.update(population)
+
+    # Append the current generation statistics to the logbook
+    record = stats.compile(population) if stats else {}
+    nevals_gen = len(invalid_ind)
+    nevals += nevals_gen
+    logbook.record(gen=gen, nevals=nevals, **record)
+    if verbose:
+        print logbook.stream 
+
+    # Begin the generational process
+    while nevals < nevals_total:
+        gen += 1
+
+        # Estimation population natural distribution of sizes
+        naturalpop, naturalpopsizes = _genpop(nbrindsmodel, producesizes=True)
+        
+        naturalhist = [0] * (max(naturalpopsizes) + 3)
+        for indsize in naturalpopsizes:
+            # Kernel density estimation application
+            naturalhist[indsize] += 0.4
+            naturalhist[indsize - 1] += 0.2
+            naturalhist[indsize + 1] += 0.2
+            naturalhist[indsize + 2] += 0.1
+            if indsize - 2 >= 0:
+                naturalhist[indsize - 2] += 0.1
+
+        # Normalization
+        naturalhist = [val * len(population) / nbrindsmodel for val in naturalhist]
+
+        # Cutoff point selection
+        sortednatural = sorted(naturalpop, key=lambda ind: ind.fitness)
+        cutoffcandidates = sortednatural[int(len(population) * rho - 1):]
+        # Select the cutoff point, with an absolute minimum applied
+        # to avoid weird cases in the first generations
+        cutoffsize = max(mincutoff, len(min(cutoffcandidates, key=len)))
+
+        # Compute the target distribution
+        targetfunc = lambda x: (gamma * len(population) * math.log(2) /
+                                halflifefunc(x)) * math.exp(-math.log(2) *
+                                                            (x - cutoffsize) / halflifefunc(x))
+        targethist = [naturalhist[binidx] if binidx <= cutoffsize else
+                      targetfunc(binidx) for binidx in range(len(naturalhist))]
+
+        # Compute the probabilities distribution
+        probhist = [t / n if n > 0 else t for n, t in zip(naturalhist, targethist)]
+        probfunc = lambda s: probhist[s] if s < len(probhist) else targetfunc(s)
+        acceptfunc = lambda s: random.random() <= probfunc(s)
+
+        # Generate offspring using the acceptance probabilities
+        # previously computed
+        offspring = _genpop(len(population), pickfrom=naturalpop,
+                            acceptfunc=acceptfunc, producesizes=False)
+
+        # Evaluate the individuals with an invalid fitness
+        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+        for ind, fit in zip(invalid_ind, fitnesses):
+            ind.fitness.values = fit
+
+        # Update the hall of fame with the generated individuals
+        if halloffame is not None:
+            halloffame.update(offspring)
+
+        # Replace the current population by the offspring
+        population[:] = offspring
+
+        # Append the current generation statistics to the logbook
+        record = stats.compile(population) if stats else {}
+        nevals_gen = len(invalid_ind)
+        nevals += nevals_gen
+        logbook.record(gen=gen, nevals=nevals, **record)
+        if verbose:
+            print logbook.stream 
+
+    return population, logbook
 
 
 ########################################################################
@@ -148,19 +376,23 @@ def create_primitive_set(n_args):
     return pset
 
 
-def create_toolbox(pset):
+def create_toolbox(hyperparameters, pset):
+    # Recuperation des informations sur les hyperparametres
+    n_tournament = hyperparameters['n_tournament']
+    init_depth = hyperparameters['init_depth']
+
     # Caracteristiques de l'individu et de la fitness
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
     creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
 
     # Creation de la toolbox
     toolbox = base.Toolbox()
-    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=2)
+    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=init_depth)
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     toolbox.register("compile", gp.compile, pset=pset)
     toolbox.register("evaluate", eval_symbreg, toolbox=toolbox, teX=None, teY=None)
-    toolbox.register("select", tools.selTournament, tournsize=3)
+    toolbox.register("select", tools.selTournament, tournsize=n_tournament)
     toolbox.register("mate", gp.cxOnePoint)
     toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
     toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
@@ -179,16 +411,51 @@ def update_toolbox_evaluate(toolbox, teX, teY):
 
 
 #########################################
-# Boucle principale GP avec harm        #
+# Fonctions principales GP harm         #
 #########################################
 
-def deap_run(dataX, dataY, kf_array):
+# deap_launch_evolution
+# Cette fonction permet de lancer la phase d'evolution sur un pli
+
+def deap_launch_evolution(hyperparameters, toolbox, pset, mstats, trX, trY, teX, teY):
+    # Recuperation des informations sur les hyperparametres
+    pop_size = hyperparameters['pop_size']
+
+    # On met a jour la toolbox avec le pli courant
+    update_toolbox_evaluate(toolbox, teX, teY)
+
+    pop = toolbox.population(n=pop_size)
+    hof = tools.HallOfFame(1)
+    
+    # Using HARM-GP extended
+    pop, log = harm(pop, toolbox, 0.5, 0.1, NEVALS_TOTAL, alpha=0.05, beta=10, gamma=0.25, 
+                    rho=0.9, stats=mstats, halloffame=hof, verbose=True)
+   
+    # On retourne le meilleur individu a la fin du processus d'evolution ains que les logs
+    best_individual = hof[0] 
+    return best_individual, log
+
+
+# deap_run
+# Cette fonction sert a faire tourner la programmation genetique avec harm sur du 5-fold x4
+# On cree tout d'abord les outils permettant de faire de la GP (initialisation)
+# Puis on lance le processus d'evolution de la GP sur chaque pli du 5-fold x4
+
+def deap_run(hyperparameters, pset, dataX, dataY, kf_array):
     random.seed(318)
 
+    # Initialisation de la GP
     logbook_list = []
-    n_args = len(dataX[0])
-    pset = create_primitive_set(n_args)
     toolbox = create_toolbox(pset)
+
+    # Logbook : statistiques
+    stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
+    stats_size = tools.Statistics(len)
+    mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
+    mstats.register("avg", np.mean)
+    mstats.register("std", np.std)
+    mstats.register("min", np.min)
+    mstats.register("max", np.max)
 
     # On boucle sur le 5-fold x4 (cross validation)
     mse_sum = 0
@@ -199,47 +466,31 @@ def deap_run(dataX, dataY, kf_array):
             trX, teX = dataX[tr_index], dataX[te_index]
             trY, teY = dataY[tr_index], dataY[te_index]
 
-            update_toolbox_evaluate(toolbox, teX, teY)
+            # Evolution de la population et retour du meilleur individu
+            best_individual, log = deap_launch_evolution(hyperparameters, toolbox, pset,
+                                                         mstats, trX, trY, teX, teY)
             
-            pop = toolbox.population(n=POP_SIZE)
-            hof = tools.HallOfFame(1)
-            
-            stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
-            stats_size = tools.Statistics(len)
-            mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
-            mstats.register("avg", numpy.mean)
-            mstats.register("std", numpy.std)
-            mstats.register("min", numpy.min)
-            mstats.register("max", numpy.max)
-
-            # Using HARM-GP extended
-            pop, log = gp.harm(pop, toolbox, 0.5, 0.1, N_GEN, alpha=0.05, beta=10, gamma=0.25, 
-                               rho=0.9, stats=mstats, halloffame=hof, verbose=True)
-            
-            best_individual = hof[0]
-            mse = best_individual.fitness.values[0]
-            size = best_individual.height
-            mse_sum += mse
-            size_sum += size
-
+            # On recupere les informations pour faire la moyenne
+            mse_sum += best_individual.fitness.values[0][0]
+            size_sum += best_individual.height
             logbook_list.append(log)
     
-    logbook = merge_logbook(logbook_list)
+    logbook = stats.merge_logbook(logbook_list)
 
     # On retourne la moyenne du MSE et size obtenue en appliquant la 5-fold cross-validation
-    mse_mean = (mse_sum / 20)[0]
-    size_mean = size_sum / 20
+    mse_mean = mse_sum / 20
+    size_mean = size_sum / 20.0
 
     return mse_mean, size_mean, logbook
 
 
-####################
-# Main call        #
-####################
+################
+# Main call    #
+################
 
 def usage(argv):
     if len(sys.argv) != 2 or not(sys.argv[1] in load.dataset_list): 
-        err_msg = "Usage : python symbreg_svm.py data_name\n"
+        err_msg = "Usage : python symbreg_deap_harm.py data_name\n"
         err_msg += "Jeux de donnees disponibles : "
         err_msg += str([dataset for dataset in load.dataset_list]) + "\n"
         sys.stderr.write(err_msg)
@@ -253,17 +504,24 @@ def main():
     run = "load.load_" + dataset + "()"
     dataX, dataY, kf_array = eval(run)
 
+    # On creer le pset ici, sinon on a une erreur pour la creation des constantes ephemeres
+    n_args = len(dataX[0])
+    pset = create_primitive_set(n_args)
+
+    # Recherche des hyperparametres optimaux (ou chargement si deja calcule)
+    hyperparameters = hyperparameters_optimization(pset, dataset, dataX, dataY, kf_array)
+
     # Aprentissage automatique
     begin = time.time()
-    mse, size, logbook = deap_run(dataX, dataY, kf_array)
-    deap_runtime = "{:.2f} seconds".format(time.time() - begin)
+    mse, size, logbook = deap_run(hyperparameters, pset, dataX, dataY, kf_array)
+    runtime = "{:.2f} seconds".format(time.time() - begin)
 
     # On sauvegarde le logbook et le mse en dur
-    logbook_filename = "./logbook/logbook_" + dataset + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpharm_" + dataset + ".pickle"
     pickle.dump(logbook, open(logbook_filename, "w"))
-
-    log_mse = dataset + " | MSE : " + str(mse) + " | size : " + str(size) + " | " + deap_runtime + "\n"
-    fd = open("./logbook/logbook_mse_deapharm.txt", "a")
+    log_mse = dataset + " | MSE : " + str(mse) + " | size : " + str(size) + " | " + runtime + "\n"
+    logbook_filename = LOGBOOK_PATH + "logbook_mse/logbook_mse_gpharm.txt"
+    fd = open(logbook_filename, "a")
     fd.write(log_mse)
 
 
