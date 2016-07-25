@@ -6,7 +6,6 @@ import operator
 import math
 import random
 import numpy as np
-import tensorflow as tf
 
 sys.path.append('../../')
 from datasets import load_utils as load
@@ -27,6 +26,12 @@ NEVALS_TOTAL = 10000
 
 # Chemin relatif du repertoire logbook
 LOGBOOK_PATH = "../../stats/logbook/"
+
+classical_hyperparameters = {
+    'pop_size': 300,
+    'n_tournament': 3,
+    'init_depth': 2,
+}
 
 
 ######################################
@@ -97,7 +102,7 @@ def hyperparameters_optimization(pset, dataset, dataX, dataY, kf_array):
         mstats.register("min", np.min)
         mstats.register("max", np.max)
         
-        print hyperparameters
+        #print hyperparameters
         
         # Evolution de la population et retour du meilleur individu
         best_individual, log = deap_launch_evolution(hyperparameters, toolbox, pset,
@@ -361,7 +366,7 @@ def deap_run(hyperparameters, pset, dataX, dataY, kf_array):
 
     # Initialisation de la GP
     logbook_list = []
-    toolbox = create_toolbox(pset)
+    toolbox = create_toolbox(hyperparameters, pset)
 
     # Logbook : statistiques
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
@@ -373,8 +378,7 @@ def deap_run(hyperparameters, pset, dataX, dataY, kf_array):
     mstats.register("max", np.max)
 
     # On boucle sur le 5-fold x4 (cross validation)
-    mse_sum = 0
-    size_sum = 0
+    stats_dic = { 'mse_train_array': [], 'mse_test_array': [], 'size_array': [] }
 
     for kfold in kf_array:
         for tr_index, te_index in kfold:
@@ -385,18 +389,19 @@ def deap_run(hyperparameters, pset, dataX, dataY, kf_array):
             best_individual, log = deap_launch_evolution(hyperparameters, toolbox, pset,
                                                          mstats, trX, trY, teX, teY)
             
-            # On recupere les informations pour faire la moyenne
-            mse_sum += best_individual.fitness.values[0][0]
-            size_sum += best_individual.height
+            # On recupere les informations dans le dictionnaire de stats
+            mse_train = eval_symbreg(best_individual, toolbox, trX, trY)[0][0]
+            mse_test = best_individual.fitness.values[0][0]
+            size = best_individual.height
+            stats_dic['mse_train_array'].append(mse_train)
+            stats_dic['mse_test_array'].append(mse_test)
+            stats_dic['size_array'].append(size)
             logbook_list.append(log)
     
     logbook = stats.merge_logbook(logbook_list)
 
-    # On retourne la moyenne du MSE et size obtenue en appliquant la 5-fold cross-validation
-    mse_mean = mse_sum / 20.0
-    size_mean = size_sum / 20.0
-
-    return mse_mean, size_mean, logbook
+    # On retourne le dictionnaire contenant les informations sur les stats ainsi que le lobgook
+    return stats_dic, logbook
 
 
 ################
@@ -428,15 +433,25 @@ def main():
 
     # Aprentissage automatique
     begin = time.time()
-    mse, size, logbook = deap_run(hyperparameters, pset, dataX, dataY, kf_array)
+    stats_dic, logbook = deap_run(hyperparameters, pset, dataX, dataY, kf_array)
     runtime = "{:.2f} seconds".format(time.time() - begin)
+    
+    # Sauvegarde du dictionnaire contenant les stats
+    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpclassic_" + dataset + ".pickle"
+    pickle.dump(stats_dic, open(logbook_filename, 'w'))
 
-    # On sauvegarde le logbook et le mse en dur
+    # Sauvegarde du logbook
     logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpclassic_" + dataset + ".pickle"
-    pickle.dump(logbook, open(logbook_filename, "w"))
-    log_mse = dataset + " | MSE : " + str(mse) + " | size : " + str(size) + " | " + runtime + "\n"
+    pickle.dump(logbook, open(logbook_filename, 'w'))
+
+    # Sauvegarde du mse
+    mse_train_mean = np.mean(stats_dic['mse_train_array'])
+    mse_test_mean = np.mean(stats_dic['mse_test_array'])
+    size_mean = np.mean(stats_dic['size_array'])
+    log_mse = dataset + " | MSE (train) : " + str(mse_train_mean) + " | MSE (test) : " + str(mse_test_mean) 
+    log_mse += " | size : " + str(size_mean) + " | " + runtime + "\n"
     logbook_filename = LOGBOOK_PATH + "logbook_mse/logbook_mse_gpclassic.txt"
-    fd = open(logbook_filename, "a")
+    fd = open(logbook_filename, 'a')
     fd.write(log_mse)
 
 

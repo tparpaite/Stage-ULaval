@@ -16,6 +16,9 @@ from datasets import load_utils as load
 BATCH_SIZE = 50
 NUM_EPOCHS = 150
 
+# Chemin relatif du repertoire logbook
+LOGBOOK_PATH = "../../stats/logbook/"
+
 
 ######################################
 # Tensorflow Data structure          #
@@ -59,6 +62,10 @@ def tensorflow_hyperparameters(dataset, dataX, dataY, kf_array):
     tr_index, te_index = kfold[0]
     trX, teX = dataX[tr_index], dataX[te_index]
     trY, teY = dataY[tr_index], dataY[te_index]
+
+    # On cree le fichier de log
+    file_log = LOGBOOK_PATH + "logbook_hyperparameters/logbook_hypers_mlp_" + dataset + ".txt"
+    fd = open(file_log, 'w')
     
     # Initialisation avec une valeur de mse maximale
     best_params = { 'mse': sys.float_info.max }
@@ -113,6 +120,9 @@ def tensorflow_hyperparameters(dataset, dataX, dataY, kf_array):
         # Entrainement du MLP et evaluation de son MSE apres entrainement
         hyperparameters['mse'] = tensorflow_train(sess, mlp, trX, trY, teX, teY)
         
+        # On ecrit les hyperparametres et le mse associe dans le logbook dedie
+        fd.write(str(hyperparameters) + "\n")
+
         # Sauvegarde des hyperparametres s'ils sont meilleurs
         if hyperparameters['mse'] < best_params['mse']:
             best_params = hyperparameters.copy()
@@ -302,8 +312,8 @@ def tensorflow_train(sess, mlp, trX, trY, teX, teY):
     keep_value = 1
 
     # Lien entre le dataset et les noeuds d'entree/sortie
-    dictTrain = {X: trX, Y: trY}
-    dictTest = {X: teX, Y: teY, keep_prob: 1.0}
+    dictTrain = { X: trX, Y: trY, keep_prob: 1.0 }
+    dictTest = { X: teX, Y: teY, keep_prob: 1.0 }
 
     for i in range(NUM_EPOCHS):
         # Calcul de la fonction de cout sur l'ensemble de test
@@ -321,9 +331,10 @@ def tensorflow_train(sess, mlp, trX, trY, teX, teY):
             sess.run(train_op, feed_dict={X: trX[start:end], Y: trY[start:end], keep_prob: keep_value})
 
     # On retourne le MSE obtenu a la fin de l'entrainement
-    mse = sess.run(mse, feed_dict=dictTest)
+    mse_train = sess.run(mse, feed_dict=dictTrain)
+    mse_test = sess.run(mse, feed_dict=dictTest)
 
-    return mse
+    return mse_train, mse_test
 
 
 def tensorflow_run(hyperparameters, dataX, dataY, kf_array):
@@ -340,7 +351,7 @@ def tensorflow_run(hyperparameters, dataX, dataY, kf_array):
     sess.run(init)
 
     # On boucle sur le 5-fold x4 (cross validation)
-    mse_sum = 0
+    stats_dic = { 'mse_train_array': [], 'mse_test_array': [] }
 
     for kfold in kf_array:
         for tr_index, te_index in kfold:
@@ -348,11 +359,14 @@ def tensorflow_run(hyperparameters, dataX, dataY, kf_array):
             trY, teY = dataY[tr_index], dataY[te_index]
         
             # Entrainement du MLP et evaluation de son MSE
-            mse = tensorflow_train(sess, mlp, trX, trY, teX, teY)
-            mse_sum += mse
+            mse_train, mse_test = tensorflow_train(sess, mlp, trX, trY, teX, teY)
+
+            # On recupere les informations dans le dictionnaire de stats
+            stats_dic['mse_train_array'].append(mse_train)
+            stats_dic['mse_test_array'].append(mse_test)
         
-    # On retourne le mse moyen
-    return mse_sum / 20
+    # On retourne le dictionnaire contenant les informations sur les stats
+    return stats_dic
 
 
 ###############
@@ -380,13 +394,21 @@ def main():
 
     # Execution
     begin = time.time()
-    mse = tensorflow_run(hyperparameters, dataX, dataY, kf_array)
+    stats_dic = tensorflow_run(hyperparameters, dataX, dataY, kf_array)
     runtime = "{:.2f} seconds".format(time.time() - begin)
 
-    # On sauvegarde le mse en dur
-    log_mse = dataset + " | MSE : " + str(mse) + " | " + runtime + "\n"
-    file = open("logbook_mse_tensorflow.txt", "a")
-    file.write(log_mse)
+    # Sauvegarde du dictionnaire contenant les stats
+    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_mlp_" + dataset + ".pickle"
+    pickle.dump(stats_dic, open(logbook_filename, 'w'))
+
+    # Sauvegarde du mse
+    mse_train_mean = np.mean(stats_dic['mse_train_array'])
+    mse_test_mean = np.mean(stats_dic['mse_test_array'])
+    log_mse = dataset + " | MSE (train) : " + str(mse_train_mean) + " | MSE (test) : " + str(mse_test_mean) 
+    log_mse += " | " + runtime + "\n"
+    logbook_filename = LOGBOOK_PATH + "logbook_mse/logbook_mse_mlp.txt"
+    fd = open(logbook_filename, 'a')
+    fd.write(log_mse)
 
 
 if __name__ == "__main__":

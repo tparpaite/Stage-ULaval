@@ -7,11 +7,10 @@
 #PBS -M tparpaite@gmail.com
 #PBS -m bea
 
-cd stage/Stage-ULaval/src/symbreg_deap
+module load apps/python/2.7.10
+source $HOME/ENV/bin/activate
+cd $HOME/Stage-ULaval/scripts
 
-for i in $(seq 0 11)
-do
-    array_job_symbreg_deap.sh $MOAB_JOBARRAYINDEX &
-done
+./array_job_symbreg_deapharm.sh $MOAB_JOBARRAYINDEX &
 
 wait

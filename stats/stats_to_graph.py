@@ -40,7 +40,7 @@ def display_individual_graph(expr):
 
 
 # Retourne un dictionnaire qui contient les logbooks GP d'un dataset
-def load_logbooks(dataset):
+def load_logbooks_gp(dataset):
     logbook_dic = {}
     logbook_dic['dataset'] = dataset
     gpmethod_list = ['gpclassic', 'gpharm']#, 'gpcoef']
@@ -54,7 +54,24 @@ def load_logbooks(dataset):
             sys.stderr.write(path + " not found\n")
             sys.exit(1)
 
-    return logbook_dic   
+    return logbook_dic
+
+
+# Retourne un dictionnaire qui contient les logbooks GP d'un dataset
+def load_logbooks_stats(dataset):
+    logbook_stats_dic = {}
+    method_list = ['gpclassic', 'gpharm', 'linear', 'svm', 'mlp']#, 'gpcoef']
+
+    for method in method_list:
+        path = LOGBOOK_PATH + "logbook_stats/logbook_stats_" + method + "_" + dataset + ".pickle"
+        if os.path.exists(path):
+            with open(path, 'rb') as f:
+                logbook_stats_dic[method] = pickle.load(f)
+        else:
+            sys.stderr.write(path + " not found\n")
+            sys.exit(1)
+
+    return logbook_stats_dic
 
 
 # Dessine la courbe en fonction des donnees contenues dans un logbook
@@ -67,6 +84,7 @@ def create_curve(logbook, color, label):
     plt.plot(X, Y, linestyle="-", marker="o", color=color, label=label, markevery=0.1)
     
 
+# create_fig_mse
 # Affiche les stats du MSE min en fonction du nb d'eval sous forme de graphe
 # Chaque courbe represente une methode de GP differente
 # X : Nombre d'individus evalues
@@ -85,11 +103,38 @@ def create_fig_mse(logbook_dic):
 
     # Affichage graphique
     plt.legend(loc="best")
-    plt.show()
 
     # Sauvegarde au format PDF
     dataset = logbook_dic['dataset']
     filename = FIG_PATH + "fig_gp_" + dataset + '.pdf'
+    plt.savefig(filename)
+    print filename + " successfully generated"
+
+
+# create_fig_box
+# Affiche les informations sur le mse final pour chaque methode avec un jeu de donnees
+# Les informations sont affiches sous forme de BOX (min, max, mediane et quartiles)
+def create_fig_box(dataset, logbook_stats_dic, stats_type):
+    keys = logbook_stats_dic.keys()
+
+    # On recupere les tableaux souhaites
+    data_array = [logbook_stats_dic[key][stats_type] for key in keys]
+
+    # On creer les boxs
+    plt.figure()
+    plt.boxplot(data_array, 0, '')
+
+    # On affiche la legende correcte sur l'axe des abscisses
+    x_ticks = range(1, len(keys) + 1)
+    plt.xticks(x_ticks, keys)
+
+    # Sauvegarde au format PDF
+    if stats_type == 'mse_train_array':
+        stats_type = 'train'
+    else:
+        stats_type = 'test'
+
+    filename = FIG_PATH + "fig_mse_" + stats_type + "_" + dataset + '.pdf'
     plt.savefig(filename)
     print filename + " successfully generated"
 
@@ -169,11 +214,20 @@ def main():
     # Chargement des donnees
     usage(sys.argv)
     dataset = sys.argv[1]
-    run = "load_logbooks(\"" + dataset + "\")"
-    logbook_dic = eval(run)
 
     # Creation de la figure MSE
+    run = "load_logbooks_gp(\"" + dataset + "\")"
+    logbook_dic = eval(run)
     create_fig_mse(logbook_dic)
+    
+    # Creation de la figure box en train et en test
+    run = "load_logbooks_stats(\"" + dataset + "\")"
+    logbook_stats_dic = eval(run)
+    create_fig_box(dataset, logbook_stats_dic, 'mse_train_array')
+    create_fig_box(dataset, logbook_stats_dic, 'mse_test_array')
+
+    # Affichage direct
+    plt.show()
 
 
 if __name__ == "__main__":

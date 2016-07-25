@@ -1,6 +1,7 @@
 import time
 import sys
 import os
+import pickle
 import cPickle as pickle
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,6 +12,10 @@ from sklearn import svm
 from sklearn import cross_validation
 from sklearn import metrics
 from sklearn import grid_search
+  
+
+# Chemin relatif du repertoire logbook
+LOGBOOK_PATH = "../../../stats/logbook/"
 
 
 ######################################
@@ -38,6 +43,9 @@ def svm_hyperparameters(dataset, dataX, dataY, kf_array):
     trX, teX = dataX[tr_index], dataX[te_index]
     trY, teY = dataY[tr_index], dataY[te_index]
     
+    # On cree le fichier de log
+    file_log = LOGBOOK_PATH + "logbook_hyperparameters/logbook_hypers_svm_" + dataset + ".txt"
+    fd = open(file_log, 'w')
 
     # Echantillonnage
     # On echantillone de maniere uniforme dans l'espace logarithmique
@@ -62,6 +70,9 @@ def svm_hyperparameters(dataset, dataX, dataY, kf_array):
         # Evaluation du mse sur l'ensemble test
         predicted = svr.predict(teX)
         mse = metrics.mean_squared_error(teY, predicted)
+
+        # On ecrit les hyperparametres et le mse associe dans le logbook dedie
+        fd.write(str(hyperparameters) + "\n")
 
         # Sauvegarde des hyperparametres s'ils sont meilleurs
         if mse < best_params["mse"]:
@@ -89,7 +100,8 @@ def svm_run(hyperparameters, dataX, dataY, kf_array):
     svr = svm.SVR(kernel='rbf', C=C, gamma=gamma)
 
     # On boucle sur le 5-fold x4 (cross validation)
-    mse_sum = 0
+    stats_dic = { 'mse_train_array': [], 'mse_test_array': [] }
+
     for kfold in kf_array:
         for tr_index, te_index in kfold:
             trX, teX = dataX[tr_index], dataX[te_index]
@@ -98,13 +110,18 @@ def svm_run(hyperparameters, dataX, dataY, kf_array):
             # On entraine notre svm
             svr.fit(trX, trY)
 
-            # Evaluation du mse sur l'ensemble test
-            predicted = svr.predict(teX)
-            mse = metrics.mean_squared_error(teY, predicted)
-            mse_sum += mse
+            # Evaluation du mse
+            predicted_train = svr.predict(trX)
+            mse_train = metrics.mean_squared_error(trY, predicted_train)
+            predicted_test = svr.predict(teX)
+            mse_test = metrics.mean_squared_error(teY, predicted_test)
 
-    # On retourne le mse moyen
-    return mse_sum / 20
+            # On recupere les informations dans le dictionnaire de stats
+            stats_dic['mse_train_array'].append(mse_train)
+            stats_dic['mse_test_array'].append(mse_test)
+
+    # On retourne le dictionnaire contenant les informations sur les stats
+    return stats_dic
     
 
 ###############
@@ -135,13 +152,21 @@ def main():
 
     # Execution
     begin = time.time()
-    mse = svm_run(hyperparameters, dataX, dataY, kf_array)
+    stats_dic = svm_run(hyperparameters, dataX, dataY, kf_array)
     runtime = "{:.2f} seconds".format(time.time() - begin)
 
-    # On sauvegarde le mse en dur
-    log_mse = dataset + " | MSE : " + str(mse) + " | " + runtime + "\n"
-    file = open("./logbook/logbook_mse_svm.txt", "a")
-    file.write(log_mse)
+    # Sauvegarde du dictionnaire contenant les stats
+    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_svm_" + dataset + ".pickle"
+    pickle.dump(stats_dic, open(logbook_filename, 'w'))
+
+    # Sauvegarde du mse
+    mse_train_mean = np.mean(stats_dic['mse_train_array'])
+    mse_test_mean = np.mean(stats_dic['mse_test_array'])
+    log_mse = dataset + " | MSE (train) : " + str(mse_train_mean) + " | MSE (test) : " + str(mse_test_mean) 
+    log_mse += " | " + runtime + "\n"
+    logbook_filename = LOGBOOK_PATH + "logbook_mse/logbook_mse_svm.txt"
+    fd = open(logbook_filename, 'a')
+    fd.write(log_mse)
 
 
 if __name__ == "__main__":
