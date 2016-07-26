@@ -348,7 +348,7 @@ def deap_launch_evolution(hyperparameters, toolbox, pset, mstats, trX, trY, teX,
     
     # Classic GP (attention au bloat)
     pop, log = eaSimple(pop, toolbox, 0.5, 0.1, NEVALS_TOTAL, stats=mstats,
-                        halloffame=hof, verbose=True)
+                        halloffame=hof, verbose=False)
    
     # On retourne le meilleur individu a la fin du processus d'evolution ains que les logs
     best_individual = hof[0] 

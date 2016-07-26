@@ -319,8 +319,8 @@ def tensorflow_train(sess, mlp, trX, trY, teX, teY):
         # Calcul de la fonction de cout sur l'ensemble de test
         loss_value = sess.run(loss, feed_dict=dictTest)
 
-        print "[{}]".format(i), " "
-        print "Loss : {:.4f}".format(loss_value), " "
+        # print "[{}]".format(i), " "
+        # print "Loss : {:.4f}".format(loss_value), " "
     
         # Entrainement a proprement parler
         # On divise le dataset en mini-batches (mini-lots)

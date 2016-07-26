@@ -433,7 +433,7 @@ def deap_launch_evolution(hyperparameters, toolbox, pset, mstats, trX, trY, teX,
     
     # Using HARM-GP extended
     pop, log = harm(pop, toolbox, 0.5, 0.1, NEVALS_TOTAL, alpha=0.05, beta=10, gamma=0.25, 
-                    rho=0.9, stats=mstats, halloffame=hof, verbose=True)
+                    rho=0.9, stats=mstats, halloffame=hof, verbose=False)
    
     # On retourne le meilleur individu a la fin du processus d'evolution ains que les logs
     best_individual = hof[0] 
