@@ -351,7 +351,7 @@ def tensorflow_run(hyperparameters, dataX, dataY, kf_array):
     sess.run(init)
 
     # On boucle sur le 5-fold x4 (cross validation)
-    stats_dic = { 'mse_train_array': [], 'mse_test_array': [] }
+    stats_dic = { 'mse_train': [], 'mse_test': [] }
 
     for kfold in kf_array:
         for tr_index, te_index in kfold:
@@ -362,8 +362,8 @@ def tensorflow_run(hyperparameters, dataX, dataY, kf_array):
             mse_train, mse_test = tensorflow_train(sess, mlp, trX, trY, teX, teY)
 
             # On recupere les informations dans le dictionnaire de stats
-            stats_dic['mse_train_array'].append(mse_train)
-            stats_dic['mse_test_array'].append(mse_test)
+            stats_dic['mse_train'].append(mse_train)
+            stats_dic['mse_test'].append(mse_test)
         
     # On retourne le dictionnaire contenant les informations sur les stats
     return stats_dic
@@ -402,8 +402,8 @@ def main():
     pickle.dump(stats_dic, open(logbook_filename, 'w'))
 
     # Sauvegarde du mse
-    mse_train_mean = np.mean(stats_dic['mse_train_array'])
-    mse_test_mean = np.mean(stats_dic['mse_test_array'])
+    mse_train_mean = np.mean(stats_dic['mse_train'])
+    mse_test_mean = np.mean(stats_dic['mse_test'])
     log_mse = dataset + " | MSE (train) : " + str(mse_train_mean) + " | MSE (test) : " + str(mse_test_mean) 
     log_mse += " | " + runtime + "\n"
     logbook_filename = LOGBOOK_PATH + "logbook_mse/logbook_mse_mlp.txt"

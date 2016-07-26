@@ -1,1 +1,0 @@
-boston | MSE (train) : 65.9152914898 | MSE (test) : 55.7156043398 | size : 8.7 | 121.54 seconds

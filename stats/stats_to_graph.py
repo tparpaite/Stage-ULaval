@@ -129,12 +129,7 @@ def create_fig_box(dataset, logbook_stats_dic, stats_type):
     plt.xticks(x_ticks, keys)
 
     # Sauvegarde au format PDF
-    if stats_type == 'mse_train_array':
-        stats_type = 'train'
-    else:
-        stats_type = 'test'
-
-    filename = FIG_PATH + "fig_mse_" + stats_type + "_" + dataset + '.pdf'
+    filename = FIG_PATH + "fig_" + stats_type + "_" + dataset + '.pdf'
     plt.savefig(filename)
     print filename + " successfully generated"
 
@@ -223,8 +218,8 @@ def main():
     # Creation de la figure box en train et en test
     run = "load_logbooks_stats(\"" + dataset + "\")"
     logbook_stats_dic = eval(run)
-    create_fig_box(dataset, logbook_stats_dic, 'mse_train_array')
-    create_fig_box(dataset, logbook_stats_dic, 'mse_test_array')
+    create_fig_box(dataset, logbook_stats_dic, 'mse_train')
+    create_fig_box(dataset, logbook_stats_dic, 'mse_test')
 
     # Affichage direct
     plt.show()

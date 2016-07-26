@@ -1,2 +1,0 @@
-boston | MSE (train) : 72.5766752114 | MSE (test) : 63.3382993322 | size : 5.7 | 159.52 seconds
-boston | MSE (train) : 72.5766752114 | MSE (test) : 63.3382993322 | size : 5.7 | 167.38 seconds

@@ -275,7 +275,7 @@ def deaptensorflow_run(hyperparameters, pset, dataX, dataY, kfold):
 
     # On boucle sur le 5-fold x4 (cross validation) 
     # NB : POUR LE MOMENT UN SEUL 5-fold
-    stats_dic = { 'mse_train_array': [], 'mse_test_array': [], 'size_array': [] }
+    stats_dic = { 'mse_train': [], 'mse_test': [], 'size': [] }
 
     for tr_index, te_index in kfold:
         trX, teX = dataX[tr_index], dataX[te_index]
@@ -289,9 +289,9 @@ def deaptensorflow_run(hyperparameters, pset, dataX, dataY, kfold):
         mse_train = eval_symbreg(best_individual, toolbox, trX, trY)[0][0]
         mse_test = best_individual.fitness.values[0][0]
         size = best_individual.height
-        stats_dic['mse_train_array'].append(mse_train)
-        stats_dic['mse_test_array'].append(mse_test)
-        stats_dic['size_array'].append(size)
+        stats_dic['mse_train'].append(mse_train)
+        stats_dic['mse_test'].append(mse_test)
+        stats_dic['size'].append(size)
         logbook_list.append(log)
         logbook_list.append(log)
 
@@ -351,9 +351,9 @@ def main():
     pickle.dump(logbook, open(logbook_filename, 'w'))
 
     # Sauvegarde du mse
-    mse_train_mean = np.mean(stats_dic['mse_train_array'])
-    mse_test_mean = np.mean(stats_dic['mse_test_array'])
-    size_mean = np.mean(stats_dic['size_array'])
+    mse_train_mean = np.mean(stats_dic['mse_train'])
+    mse_test_mean = np.mean(stats_dic['mse_test'])
+    size_mean = np.mean(stats_dic['size'])
     log_mse = dataset + " | MSE (train) : " + str(mse_train_mean) + " | MSE (test) : " + str(mse_test_mean) 
     log_mse += " | size : " + str(size_mean) + " | " + runtime + "\n"
     logbook_filename = LOGBOOK_PATH + "logbook_mse/logbook_mse_gpcoef.txt"

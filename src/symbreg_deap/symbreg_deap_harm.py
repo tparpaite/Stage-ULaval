@@ -21,7 +21,6 @@ from deap import gp
 # Hyperparametres  #
 ####################
 
-POP_SIZE = 300
 NEVALS_TOTAL = 10000
 
 # Chemin relatif du repertoire logbook
@@ -463,7 +462,7 @@ def deap_run(hyperparameters, pset, dataX, dataY, kf_array):
     mstats.register("max", np.max)
 
     # On boucle sur le 5-fold x4 (cross validation)
-    stats_dic = { 'mse_train_array': [], 'mse_test_array': [], 'size_array': [] }    
+    stats_dic = { 'mse_train': [], 'mse_test': [], 'size': [] }    
 
     for kfold in kf_array:
         for tr_index, te_index in kfold:
@@ -478,9 +477,9 @@ def deap_run(hyperparameters, pset, dataX, dataY, kf_array):
             mse_train = eval_symbreg(best_individual, toolbox, trX, trY)[0][0]
             mse_test = best_individual.fitness.values[0][0]
             size = best_individual.height
-            stats_dic['mse_train_array'].append(mse_train)
-            stats_dic['mse_test_array'].append(mse_test)
-            stats_dic['size_array'].append(size)
+            stats_dic['mse_train'].append(mse_train)
+            stats_dic['mse_test'].append(mse_test)
+            stats_dic['size'].append(size)
             logbook_list.append(log)
     
     logbook = stats.merge_logbook(logbook_list)
@@ -530,9 +529,9 @@ def main():
     pickle.dump(logbook, open(logbook_filename, 'w'))
 
     # Sauvegarde du mse
-    mse_train_mean = np.mean(stats_dic['mse_train_array'])
-    mse_test_mean = np.mean(stats_dic['mse_test_array'])
-    size_mean = np.mean(stats_dic['size_array'])
+    mse_train_mean = np.mean(stats_dic['mse_train'])
+    mse_test_mean = np.mean(stats_dic['mse_test'])
+    size_mean = np.mean(stats_dic['size'])
     log_mse = dataset + " | MSE (train) : " + str(mse_train_mean) + " | MSE (test) : " + str(mse_test_mean) 
     log_mse += " | size : " + str(size_mean) + " | " + runtime + "\n"
     logbook_filename = LOGBOOK_PATH + "logbook_mse/logbook_mse_gpharm.txt"
