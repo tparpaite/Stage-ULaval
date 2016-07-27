@@ -7,8 +7,8 @@ dataset=${dataset_list[$1]}
 # On se place dans le repertoire contenant la methode de regression symbolique
 cd $HOME/Stage-ULaval/src/sklearn/regression
 
-echo "Debut GP classique ($dataset)"
+echo "Debut svm ($dataset)"
 python symbreg_svm.py $dataset
-echo "Fin GP classique ($dataset)"
+echo "Fin svm ($dataset)"
 
 exit 0

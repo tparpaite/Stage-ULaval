@@ -117,8 +117,8 @@ def tensorflow_hyperparameters(dataset, dataX, dataY, kf_array):
         init = tf.initialize_all_variables()
         sess.run(init)
         
-        # Entrainement du MLP et evaluation de son MSE apres entrainement
-        hyperparameters['mse'] = tensorflow_train(sess, mlp, trX, trY, teX, teY)
+        # Entrainement du MLP et evaluation de son MSE (en test) apres entrainement
+        hyperparameters['mse'] = tensorflow_train(sess, mlp, trX, trY, teX, teY)[1]
         
         # On ecrit les hyperparametres et le mse associe dans le logbook dedie
         fd.write(str(hyperparameters) + "\n")
@@ -257,7 +257,7 @@ def tensorflow_init(hyperparameters, nb_inputs):
     tf.reset_default_graph()
 
     # On recupere les infos sur les hyperparametres optimaux
-    # On cast le learning_rate (gradient descent sur 32 bits seulement) 
+    # On cast le learning_rate (gradient descent sur 32 bits seulement)
     learning_rate = hyperparameters['learning_rate']
     learning_rate = tf.constant(learning_rate, tf.float32)
     reg_scale = hyperparameters['reg_scale']

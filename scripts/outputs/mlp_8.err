@@ -1,0 +1,194 @@
+/home/thpar33/.bashrc: line 4: module: command not found
+/home/thpar33/.bashrc: line 5: module: command not found
+/home/thpar33/.bashrc: line 6: module: command not found
+
+The following have been reloaded with a version change:
+  1) compilers/gcc/4.8 => compilers/gcc/4.8.5
+
+
+Inactive Modules:
+  1) mpi/openmpi/1.8.7
+
+The following have been reloaded with a version change:
+  1) cuda/6.0.37 => cuda/7.5.18
+
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcublas.so.7.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcudnn.so.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcufft.so.7.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcuda.so locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcurand.so.7.5 locally
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:102] Found device 0 with properties: 
+name: Tesla K20m
+major: 3 minor: 5 memoryClockRate (GHz) 0.7055
+pciBusID 0000:09:00.0
+Total memory: 4.69GiB
+Free memory: 4.61GiB
+W tensorflow/stream_executor/cuda/cuda_driver.cc:572] creating context when one is currently active; existing: 0x884f450
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:102] Found device 1 with properties: 
+name: Tesla K20m
+major: 3 minor: 5 memoryClockRate (GHz) 0.7055
+pciBusID 0000:83:00.0
+Total memory: 4.69GiB
+Free memory: 4.61GiB
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:59] cannot enable peer access from device ordinal 0 to device ordinal 1
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:59] cannot enable peer access from device ordinal 1 to device ordinal 0
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:126] DMA: 0 1 
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:136] 0:   Y N 
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:136] 1:   N Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:83:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:83:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:83:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:83:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:83:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:83:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:83:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:83:00.0)
+
+==============NVSMI LOG==============
+
+Timestamp                           : Wed Jul 27 14:35:42 2016
+Driver Version                      : 352.79
+
+Attached GPUs                       : 8
+GPU 0000:83:00.0
+    Accounting Mode                 : Enabled
+    Accounting Mode Buffer Size     : 1920
+    Accounted Processes
+        Process ID                  : 52403
+            GPU Utilization         : 0 %
+            Memory Utilization      : 0 %
+            Max memory usage        : 64 MiB
+            Time                    : 1423919 ms
+            Is Running              : 0
+
+
+==============NVSMI LOG==============
+
+Timestamp                           : Wed Jul 27 14:35:42 2016
+Driver Version                      : 352.79
+
+Attached GPUs                       : 8
+GPU 0000:09:00.0
+    Accounting Mode                 : Enabled
+    Accounting Mode Buffer Size     : 1920
+    Accounted Processes
+        Process ID                  : 52403
+            GPU Utilization         : 37 %
+            Memory Utilization      : 0 %
+            Max memory usage        : 4516 MiB
+            Time                    : 1424003 ms
+            Is Running              : 0
+
+/home/thpar33/.bashrc: line 4: module: command not found
+/home/thpar33/.bashrc: line 5: module: command not found
+/home/thpar33/.bashrc: line 6: module: command not found
+
+The following have been reloaded with a version change:
+  1) compilers/gcc/4.8 => compilers/gcc/4.8.5
+
+
+Inactive Modules:
+  1) mpi/openmpi/1.8.7
+
+The following have been reloaded with a version change:
+  1) cuda/6.0.37 => cuda/7.5.18
+
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcublas.so.7.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcudnn.so.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcufft.so.7.5 locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcuda.so locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcurand.so.7.5 locally
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:102] Found device 0 with properties: 
+name: Tesla K20m
+major: 3 minor: 5 memoryClockRate (GHz) 0.7055
+pciBusID 0000:08:00.0
+Total memory: 4.69GiB
+Free memory: 4.61GiB
+W tensorflow/stream_executor/cuda/cuda_driver.cc:572] creating context when one is currently active; existing: 0x851b370
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:102] Found device 1 with properties: 
+name: Tesla K20m
+major: 3 minor: 5 memoryClockRate (GHz) 0.7055
+pciBusID 0000:09:00.0
+Total memory: 4.69GiB
+Free memory: 4.61GiB
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:126] DMA: 0 1 
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:136] 0:   Y Y 
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:136] 1:   Y Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K20m, pci bus id: 0000:08:00.0)
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:806] Creating TensorFlow device (/gpu:1) -> (device: 1, name: Tesla K20m, pci bus id: 0000:09:00.0)

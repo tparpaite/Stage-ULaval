@@ -63,22 +63,26 @@ def svm_hyperparameters(dataset, dataX, dataY, kf_array):
         C = 10 ** (C_log)
         gamma = 10 ** (G_log)
 
+        # On stocke les hyperparametres dans un dictionnaire
+        hyperparameters = {
+            'C': C,
+            'gamma': gamma
+        }
+
         # Creation du svr et entrainement
         svr = svm.SVR(kernel='rbf', C=C, gamma=gamma)
         svr.fit(trX, trY)
         
         # Evaluation du mse sur l'ensemble test
         predicted = svr.predict(teX)
-        mse = metrics.mean_squared_error(teY, predicted)
+        hyperparameters['mse'] = metrics.mean_squared_error(teY, predicted)
 
         # On ecrit les hyperparametres et le mse associe dans le logbook dedie
         fd.write(str(hyperparameters) + "\n")
 
         # Sauvegarde des hyperparametres s'ils sont meilleurs
-        if mse < best_params["mse"]:
-            best_params["C"] = C
-            best_params["gamma"] = gamma
-            best_params["mse"] = mse
+        if hyperparameters['mse'] < best_params["mse"]:
+            best_params = hyperparameters.copy()
 
     # On sauvegarde les hyperparametres en dur avec pickle
     with open(filepath, 'wb') as f:

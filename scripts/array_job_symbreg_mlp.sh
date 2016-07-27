@@ -7,8 +7,8 @@ dataset=${dataset_list[$1]}
 # On se place dans le repertoire contenant la methode de regression symbolique
 cd $HOME/Stage-ULaval/src/tensorflow
 
-echo "Debut GP classique ($dataset)"
+echo "Debut mlp ($dataset)"
 python symbreg_mlp.py $dataset
-echo "Fin GP classique ($dataset)"
+echo "Fin mlp ($dataset)"
 
 exit 0

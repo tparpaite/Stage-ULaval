@@ -1,0 +1,10 @@
+polynome | MSE (train) : 41.3055 | MSE (test) : 41.3055 | 3.07 seconds
+keijzer_6 | MSE (train) : 0.000883763 | MSE (test) : 0.000975452 | 24.10 seconds
+bioavailability | MSE (train) : 188.057 | MSE (test) : 336.049 | 51.41 seconds
+boston | MSE (train) : 9.25981 | MSE (test) : 14.646 | 44.30 seconds
+pagie_1 | MSE (train) : 0.00121985 | MSE (test) : 0.00124231 | 82.84 seconds
+nguyen_7 | MSE (train) : 0.000265661 | MSE (test) : 0.000265866 | 107.67 seconds
+vladislavleva_4 | MSE (train) : 0.00205458 | MSE (test) : 0.00307812 | 131.89 seconds
+airfoil | MSE (train) : 34.321 | MSE (test) : 35.3937 | 144.56 seconds
+spacega | MSE (train) : 0.0405687 | MSE (test) : 0.040711 | 355.30 seconds
+compactiv | MSE (train) : 32.6915 | MSE (test) : 33.037 | 1095.30 seconds

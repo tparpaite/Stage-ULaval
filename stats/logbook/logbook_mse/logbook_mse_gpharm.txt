@@ -1,0 +1,10 @@
+polynome | MSE (train) : 0.105461223816 | MSE (test) : 7.37105215647e-05 | size : 7.85 | 152.36 seconds
+keijzer_6 | MSE (train) : 0.850730642005 | MSE (test) : 0.810857308415 | size : 5.75 | 351.55 seconds
+boston | MSE (train) : 57.5152230145 | MSE (test) : 48.0624360877 | size : 6.6 | 359.79 seconds
+pagie_1 | MSE (train) : 0.379718457844 | MSE (test) : 0.365722416529 | size : 4.65 | 583.75 seconds
+nguyen_7 | MSE (train) : 0.0899488730617 | MSE (test) : 0.0839010872441 | size : 6.25 | 796.43 seconds
+vladislavleva_4 | MSE (train) : 0.228002209172 | MSE (test) : 0.220440538868 | size : 5.85 | 729.21 seconds
+bioavailability | MSE (train) : 1894.21687474 | MSE (test) : 1538.70729665 | size : 7.65 | 554.21 seconds
+airfoil | MSE (train) : 908.834452154 | MSE (test) : 906.517801038 | size : 15.2 | 1222.78 seconds
+spacega | MSE (train) : 0.0743681774344 | MSE (test) : 0.069652008268 | size : 3.05 | 1256.59 seconds
+compactiv | MSE (train) : 3322.20570506 | MSE (test) : 3281.75329397 | size : 14.35 | 4547.76 seconds

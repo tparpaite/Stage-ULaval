@@ -1,4 +1,5 @@
 import sys
+import numpy as np
 import tensorflow as tf
 import gp_deap_tensorflow as gpdt
 
@@ -142,9 +143,9 @@ def tensorflow_run(individual_tensor, trX, trY, teX, teY, n_epochs):
     for learning_rate in LEARNING_RATE_SAMPLE:
         w, mse = tensorflow_train(sess, individual_tensor, trX, trY, teX, teY, n_epochs, learning_rate)
         current_weights = { 'weights': w, 'mse': mse, 'learning_rate': learning_rate }
-
+        
         if current_weights['mse'] < best_weights['mse']:
-            best_weights = current_weights
+            best_weights = current_weights.copy()
 
     ################# TMP #################
     # print "Learning rate : " + str(best_weights['learning_rate']) + " | MSE : Before " + str(before) + " / After " + str(best_weights['mse'])

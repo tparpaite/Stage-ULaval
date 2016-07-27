@@ -8,7 +8,6 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-import pygraphviz as pgv
 import tensorflow as tf
 import gp_deap_tensorflow as gpdt
 import tensorflow_computation as tfc
@@ -109,8 +108,6 @@ def deaptensorflow_hyperparameters(pset, dataset, dataX, dataY, kfold):
         mstats.register("min", np.min)
         mstats.register("max", np.max)
         
-        print hyperparameters
-        
         # Evolution de la population et retour du meilleur individu
         best_individual, log = deaptensorflow_launch_evolution(hyperparameters, toolbox, pset,
                                                                mstats, trX, trY, teX, teY)
@@ -120,6 +117,10 @@ def deaptensorflow_hyperparameters(pset, dataset, dataX, dataY, kfold):
         
         # On ecrit les hyperparametres et le mse associe dans le logbook dedie
         fd.write(str(hyperparameters) + "\n")
+
+        # Flush temporaire pour debug
+        fd.flush()
+        os.fsync(fd.fileno())
 
         # Sauvegarde des hyperparametres en tant que best s'ils sont meilleurs
         if hyperparameters['mse'] < best_params['mse']:
@@ -163,8 +164,12 @@ def eval_symbreg(individual, pset, trX, trY, teX, teY):
     individual_tensor = tfc.tensorflow_init(individual, n_inputs, n_weights, individual.optimized_weights)
 
     # Optimisation des coefficients avec TensorFlow sur l'ensemble train
-    individual.optimized_weights = tfc.tensorflow_run(individual_tensor, trX, trY, teX, teY, N_EPOCHS)
+    tmp_optimized_weights = tfc.tensorflow_run(individual_tensor, trX, trY, teX, teY, N_EPOCHS)
 
+    # On verifie que TensorFlow n'a pas diverge (dans ce cas il retourne NaN pour le mse)
+    if tmp_optimized_weights != None:
+        individual.optimized_weights = tmp_optimized_weights
+    
     # Evaluation du MSE sur l'ensemble test
     return mean_squarred_error(func, individual.optimized_weights, teX, teY),
 

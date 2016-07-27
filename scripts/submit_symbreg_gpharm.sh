@@ -1,9 +1,9 @@
 #!/bin/bash
-#PBS -N GP classique
+#PBS -N GP harm
 #PBS -A suj-571-aa
 #PBS -l nodes=1:ppn=8
 #PBS -l walltime=12:00:00
-#PBS -t [0-11]
+#PBS -t [0-10]
 #PBS -M tparpaite@gmail.com
 #PBS -m bea
 #PBS -o $HOME/Stage-ULaval/scripts/outputs/gpharm_%I.out
