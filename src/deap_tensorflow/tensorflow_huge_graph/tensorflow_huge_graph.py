@@ -131,7 +131,7 @@ def training_100x1(individual, pset, trX, trY, teX, teY):
         individual.optimized_weights = tmp_optimized_weights
     
     # Evaluation du MSE sur l'ensemble test
-    return mean_squarred_error(func, individual.optimized_weights, teX, teY),
+    return mean_squarred_error(func, individual.optimized_weights, teX, teY)[0]
 
 
 # launch_training_100x1
@@ -196,7 +196,7 @@ def launch_training_1x100(pop, pset, trX, trY, teX, teY):
     # Evaluation du MSE sur l'ensemble test pour le meilleur individu
     func = pop_info[best_index_individual]['func']
     optimized_weights = pop_info[best_index_individual]['optimized_weights']
-    best_mse = mean_squarred_error(func, optimized_weights, teX, teY)
+    best_mse = mean_squarred_error(func, optimized_weights, teX, teY)[0]
             
     return best_mse
     
@@ -275,7 +275,7 @@ def main():
     # Sauvegarde du dictionnaire contenant les stats en texte brut
     logbook_filename = LOGBOOK_PATH + "logbook_tfhugegraph/logbook_tfhugegraph_" + dataset + ".txt"
     fd = open(logbook_filename, 'a')
-    fd.write(str(stats_dic))
+    fd.write(str(stats_dic) + '\n')
 
 
 if __name__ == "__main__":

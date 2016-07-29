@@ -21,3 +21,7 @@ boston | MSE (train) : 62.6886686549 | MSE (test) : 56.6685830998 | size : 7.45 
 boston | MSE (train) : 62.6886686549 | MSE (test) : 56.6685830998 | size : 7.45 | 137.55 seconds
 boston | MSE (train) : 73.8867176281 | MSE (test) : 62.5349780118 | size : 6.65 | 149.20 seconds
 polynome | MSE (train) : 0.0308946876875 | MSE (test) : 0.000186663125 | size : 7.85 | 1731.65 seconds
+keijzer_6 | MSE (train) : 2.1982143869 | MSE (test) : 0.510376646236 | size : 12.4 | 3849.47 seconds
+boston | MSE (train) : 37.9613709952 | MSE (test) : 28.1696890993 | size : 12.4 | 4229.29 seconds
+pagie_1 | MSE (train) : 0.403122433797 | MSE (test) : 0.385193578494 | size : 4.25 | 4706.78 seconds
+bioavailability | MSE (train) : 84868.0532917 | MSE (test) : 1104.47765274 | size : 11.85 | 5471.49 seconds
