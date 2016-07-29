@@ -158,8 +158,8 @@ def tensorflow_train(index_individual, pop_info, pop_graph, sess, trX, trY, teX,
                                       trX, trY, teX, teY, n_epochs, learning_rate)
         current_weights = { 'weights': w, 'mse': mse, 'learning_rate': learning_rate }
 
-    if current_weights['mse'] < best_weights['mse']:
-        best_weights = current_weights.copy()
+        if current_weights['mse'] < best_weights['mse']:
+            best_weights = current_weights.copy()
     
     # On verifie que TensorFlow n'a pas diverge (dans ce cas il retourne NaN pour le mse)
     if best_weights['weights'] == None:
