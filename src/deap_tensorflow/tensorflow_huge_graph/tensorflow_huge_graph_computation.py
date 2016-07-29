@@ -45,6 +45,11 @@ class PopGraph:
 # Creation du la partie propre a chaque individu dans le huge graphe
 
 def tensorflow_create_individual_subgraph(index_individual, individual, pop_graph):
+    # Recuperation des informations sur le graphe principal
+    Y = pop_graph.output
+    W = pop_graph.weights_tab[index_individual]
+    learning_rate = pop_graph.learning_rate
+
     # Creation du modele (fonction de prediction)
     pred = gpth.primitivetree_to_tensor(index_individual, pop_graph)
 
@@ -85,9 +90,7 @@ def tensorflow_init(pop_info, n_inputs):
 
     for i in range(n_individuals):
         n_weights = pop_info[i]['n_weights']
-        weights_tab[i] = tf.random_normal([n_weights])
-
-    W = tf.Variable(weights_tab)
+        weights_tab[i] = tf.Variable(tf.random_normal([n_weights]))
 
     # Creation du placeholder contenant le learning rate
     learning_rate = tf.placeholder(tf.float32)
@@ -98,7 +101,7 @@ def tensorflow_init(pop_info, n_inputs):
     train_op_tab = [None] * n_individuals
  
     # On cree l'objet pop_graph
-    pop_graph = PopGraph(pop_info, X, Y, W, learning_rate, mse_tab, loss_tab, train_op_tab)
+    pop_graph = PopGraph(pop_info, X, Y, weights_tab, learning_rate, mse_tab, loss_tab, train_op_tab)
 
     # Pour chaque individu on cree le sous-graphe correspondant
     for i in range(n_individuals):

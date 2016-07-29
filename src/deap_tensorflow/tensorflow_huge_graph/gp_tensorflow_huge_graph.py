@@ -260,7 +260,7 @@ def create_tensor_node(index_individual, pop_graph, x, left_tree, right_tree, w_
         else:
             # On recupere les informations
             arg_index = get_arg_index(value)
-            X = individual_tensor.input
+            X = pop_graph.input
             W = pop_graph.weights_tab[index_individual]
             column = X[:, arg_index]
 
