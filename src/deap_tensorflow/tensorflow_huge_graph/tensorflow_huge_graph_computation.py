@@ -21,7 +21,7 @@ class PopGraph:
 
     __slots__ = ('pop_info', 'input', 'output', 'weights_tab', 'learning_rate', 'mse_tab', 'loss_tab', 'train_op_tab')
 
-    def __init__(self, pop_info, input, output, weights, learning_rate, mse_tab, loss_tab, train_op_tab):
+    def __init__(self, pop_info, input, output, weights_tab, learning_rate, mse_tab, loss_tab, train_op_tab):
         self.pop_info = pop_info
         self.input = input
         self.output = output
@@ -84,10 +84,10 @@ def tensorflow_init(pop_info, n_inputs):
     weights_tab = [None] * n_individuals
 
     for i in range(n_individuals):
-        n_weights = pop_info[i]['weights']
+        n_weights = pop_info[i]['n_weights']
         weights_tab[i] = tf.random_normal([n_weights])
 
-    W = tf.Variable(w_pop)
+    W = tf.Variable(weights_tab)
 
     # Creation du placeholder contenant le learning rate
     learning_rate = tf.placeholder(tf.float32)
@@ -95,7 +95,7 @@ def tensorflow_init(pop_info, n_inputs):
     # Creation du tableau contenant le mse, loss et train_op pour chaque individu
     mse_tab = [None] * n_individuals
     loss_tab = [None] * n_individuals
-    train_op = [None] * n_individuals
+    train_op_tab = [None] * n_individuals
  
     # On cree l'objet pop_graph
     pop_graph = PopGraph(pop_info, X, Y, W, learning_rate, mse_tab, loss_tab, train_op_tab)

@@ -155,7 +155,7 @@ def launch_training_100x1(pop, pset, trX, trY, teX, teY):
 # Fonctions methode 1x100   #
 #############################
 
-def generate_pop_info(pop):
+def generate_pop_info(pop, pset):
     n_individuals = len(pop)
     pop_info = [{}] * n_individuals
 
@@ -178,11 +178,12 @@ def generate_pop_info(pop):
 # Genere d'abord un graphe unique pour les 100 individus
 # Puis lance l'entrainement sur ce graphe
 
-def launch_training_1x100(pop, trX, trY, teX, teY):
+def launch_training_1x100(pop, pset, trX, trY, teX, teY):
     n_individuals = len(pop)
+    n_inputs = len(trX[0])
 
     # Recuperation des infos sur l'individu (individu compile, n_weights)
-    pop_info = generate_pop_info(pop)
+    pop_info = generate_pop_info(pop, pset)
 
     # Generation du graphe
     pop_graph = tfhudge.tensorflow_init(pop_info, n_inputs)
