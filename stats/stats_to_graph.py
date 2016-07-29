@@ -18,9 +18,18 @@ from datasets import load_utils as load
 from deap import tools
 from deap import gp
 
+
+####################
+# Hyperparametres  #
+####################
+
+X_LIMIT = 10250
+Y_LIMIT = 10000
+
 # Chemin relatif du repertoire logbook
 LOGBOOK_PATH = "./logbook/"
 FIG_PATH = "./fig/"
+
 
 # Affiche l'individu passe en parametre sous forme d'abre infixe
 def display_individual_graph(expr):
@@ -77,12 +86,12 @@ def load_logbooks_stats(dataset):
 # Dessine la courbe en fonction des donnees contenues dans un logbook
 # X : Nombre d'individus evalues
 # Y : MSE en test du meilleur individu
-def create_curve(logbook, color, label):
+def create_curve(fig, logbook, color, label):
     X = np.array(logbook.select("nevals"))
     Y = np.array(logbook.chapters["fitness"].select("min"))
 
-    plt.plot(X, Y, linestyle="-", marker="o", color=color, label=label, markevery=0.1)
-    
+    return fig.plot(X, Y, linestyle="-", marker="o", color=color, label=label, markevery=10)
+
 
 # create_fig_mse
 # Affiche les stats du MSE min en fonction du nb d'eval sous forme de graphe
@@ -91,57 +100,56 @@ def create_curve(logbook, color, label):
 # Y : MSE en test du meilleur individu
 # Nom de la figure : "Meilleure adequation (erreur MSE) en test en fonction du nombre d'evalutions" 
 def create_fig_mse(logbook_dic):
-    plt.xlabel("Nombre d'individus evalues")
-    plt.ylabel("Adequation en test du meilleur individu (minimisation)")
+    fig, axes = plt.subplots(figsize=(15,6))
 
-    axes = plt.gca()
-    axes.set_xlim([0,10000])
+    # On ajuste les axes
+    axes.set_xlabel("Nombre d'individus evalues")
+    axes.set_ylabel("Adequation en test du meilleur individu (minimisation)")
+    axes.set_xlim([0,X_LIMIT])
+    axes.set_ylim([0,Y_LIMIT])
     
-    create_curve(logbook_dic['gpclassic'], "b", "GP classique")
-    create_curve(logbook_dic['gpharm'], "r", "GP harm")
-    #create_curve(logbook_dic['gpcoef'], "g", "GP coef")
+    # Creation des courbes
+    curve_gpclassic = create_curve(axes, logbook_dic['gpclassic'], "b", "GP classique")
+    curve_gpharm = create_curve(axes, logbook_dic['gpharm'], "r", "GP harm")
+    #curve_gpcoef = create_curve(fig, logbook_dic['gpcoef'], "g", "GP coef")
 
     # Affichage graphique
-    plt.legend(loc="best")
+    curves = curve_gpclassic + curve_gpharm
+    labels = [c.get_label() for c in curves]
+    axes.legend(curves, labels, loc="best")
 
     # Sauvegarde au format PDF
     dataset = logbook_dic['dataset']
     filename = FIG_PATH + "fig_gp_" + dataset + '.pdf'
-    plt.savefig(filename)
+    fig.savefig(filename)
     print filename + " successfully generated"
 
 
 # create_fig_box
 # Affiche les informations sur le mse final pour chaque methode avec un jeu de donnees
+# Affiche les informations sur la taille finale d'un invididu (avec les differentes methodes de GP)
 # Les informations sont affiches sous forme de BOX (min, max, mediane et quartiles)
 def create_fig_box(dataset, logbook_stats_dic, stats_type):
     keys = logbook_stats_dic.keys()
 
-    # On recupere les tableaux souhaites
-    data_array = [logbook_stats_dic[key][stats_type] for key in keys]
+    # On recupere les tableaux souhaites (la condition vient pour le cas ou stats_type vaut size)
+    data_array = [logbook_stats_dic[key][stats_type] for key in keys if stats_type in logbook_stats_dic[key]]
+
+    print data_array
 
     # On creer les boxs
-    plt.figure()
-    plt.boxplot(data_array, 0, '')
+    fig, axes = plt.subplots(figsize=(8,6))
+    axes.boxplot(data_array, 0, '')
+
+    axes.set_ylim([0,Y_LIMIT])
 
     # On affiche la legende correcte sur l'axe des abscisses
-    x_ticks = range(1, len(keys) + 1)
-    plt.xticks(x_ticks, keys)
+    axes.set_xticklabels(keys)
 
     # Sauvegarde au format PDF
     filename = FIG_PATH + "fig_" + stats_type + "_" + dataset + '.pdf'
-    plt.savefig(filename)
+    fig.savefig(filename)
     print filename + " successfully generated"
-
-
-def max_entry(logbook_list):
-    max = len(logbook_list[0])
-
-    for logbook in logbook_list:
-        if len(logbook) > max:
-            max = len(logbook)
-
-    return max
 
 
 # Permet de fusionner des logbook (pour avoir la moyenne des stats sur 5-fold x4)
@@ -149,8 +157,11 @@ def max_entry(logbook_list):
 # du nombre d'evaluation et pas de generation, on se retrouve avec des logbooks qui
 # n'ont pas le meme nombre d'entrees
 def merge_logbook(logbook_list):
-    # On recupere le nombre maximal d'entree parmi les logbooks
-    n_entry = max_entry(logbook_list)
+    # Nombre de logbook
+    n_logbook = len(logbook_list)
+
+    # On recupere le nombre d'entree parmi les logbooks (il est egal pour tous les logbooks)
+    n_entry = len(logbook_list[0])
 
     # Le logbook qui contient les entrees fusionnees
     res = tools.Logbook()
@@ -163,33 +174,35 @@ def merge_logbook(logbook_list):
     for i in range(n_entry):
         record = {}
 
-        # Moyenne du nombre d'evaluations
-        n_mean = 0.0
-        nevals_sum = 0.0
-        for logbook in logbook_list:
-            if i < len(logbook):
-                n_mean += 1.0
-                nevals_sum += logbook[i]["nevals"]
+        # Nombre d'evaluation courante (la meme pour tous les logbooks)
+        nevals = logbook_list[0][i]['nevals']
 
-        nevals = nevals_sum / n_mean
+        # Moyenne de la gen courante
+        gen_mean = np.mean([logbook[i]['gen'] for logbook in logbook_list])
     
         # Moyenne de chaque champ pour chaque chapitre
         for chapter in chapters:
             record[chapter] = {}
             for field in fields:
-                # On parcourt les logbooks
-                n_mean = 0.0
-                nfield_sum = 0.0
-                for logbook in logbook_list:
-                    if i < len(logbook):
-                        n_mean += 1.0
-                        nfield_sum += logbook.chapters[chapter][i][field]
+                record[chapter][field] = np.mean([logbook.chapters[chapter][i][field] for logbook in logbook_list])
 
-                record[chapter][field] = nfield_sum / n_mean
-
-        res.record(gen=i, nevals=nevals, **record)
+        res.record(gen=gen_mean, nevals=nevals, **record)
 
     return res
+
+
+def stats_run(dataset):
+    # Creation de la figure MSE
+    run = "load_logbooks_gp(\"" + dataset + "\")"
+    logbook_dic = eval(run)
+    create_fig_mse(logbook_dic)
+    
+    # Creation de la figure box pour size, mse en train et en test
+    run = "load_logbooks_stats(\"" + dataset + "\")"
+    logbook_stats_dic = eval(run)
+    create_fig_box(dataset, logbook_stats_dic, 'mse_train')
+    create_fig_box(dataset, logbook_stats_dic, 'mse_test')
+    create_fig_box(dataset, logbook_stats_dic, 'size')
 
 
 ################
@@ -197,10 +210,11 @@ def merge_logbook(logbook_list):
 ################
 
 def usage(argv):
-    if len(sys.argv) != 2 or not(sys.argv[1] in load.dataset_list): 
+    if len(sys.argv) != 2 or (not(sys.argv[1] in load.dataset_list) and sys.argv[1] != '-all'): 
         err_msg = "Usage : python stats.py data_name\n"
         err_msg += "Jeux de donnees disponibles : "
         err_msg += str([dataset for dataset in load.dataset_list]) + "\n"
+        err_msg += "Pour generer tous les jeux de donnees utiliser l'option -all\n"
         sys.stderr.write(err_msg)
         sys.exit(1)
 
@@ -210,18 +224,11 @@ def main():
     usage(sys.argv)
     dataset = sys.argv[1]
 
-    # Creation de la figure MSE
-    run = "load_logbooks_gp(\"" + dataset + "\")"
-    logbook_dic = eval(run)
-    create_fig_mse(logbook_dic)
-    
-    # Creation de la figure box en train et en test
-    run = "load_logbooks_stats(\"" + dataset + "\")"
-    logbook_stats_dic = eval(run)
-    create_fig_box(dataset, logbook_stats_dic, 'mse_train')
-    create_fig_box(dataset, logbook_stats_dic, 'mse_test')
+    if dataset == '-all':
+        [stats_run(dataset) for dataset in load.dataset_list]
+    else:
+        stats_run(dataset)
 
-    # Affichage direct
     plt.show()
 
 

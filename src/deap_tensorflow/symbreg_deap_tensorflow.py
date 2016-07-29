@@ -290,14 +290,17 @@ def deaptensorflow_run(hyperparameters, pset, dataX, dataY, kfold):
         best_individual, log = deaptensorflow_launch_evolution(hyperparameters, toolbox, pset,
                                                                mstats, trX, trY, teX, teY)
     
+        # Evaluation de l'individu en train
+        func = toolbox.compile(expr=best_individual)
+        optimized_weights = best_individual.optimized_weights
+        mse_train = mean_squarred_error(func, optimized_weights, trX, trY)
+
         # On recupere les informations dans le dictionnaire de stats
-        mse_train = eval_symbreg(best_individual, toolbox, trX, trY)[0][0]
         mse_test = best_individual.fitness.values[0][0]
         size = best_individual.height
         stats_dic['mse_train'].append(mse_train)
         stats_dic['mse_test'].append(mse_test)
         stats_dic['size'].append(size)
-        logbook_list.append(log)
         logbook_list.append(log)
 
         #####################################################################
