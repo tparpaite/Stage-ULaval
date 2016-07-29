@@ -20,3 +20,4 @@ spacega | MSE (train) : 0.0541684887796 | MSE (test) : 0.0539001247764 | size : 
 boston | MSE (train) : 62.6886686549 | MSE (test) : 56.6685830998 | size : 7.45 | 133.77 seconds
 boston | MSE (train) : 62.6886686549 | MSE (test) : 56.6685830998 | size : 7.45 | 137.55 seconds
 boston | MSE (train) : 73.8867176281 | MSE (test) : 62.5349780118 | size : 6.65 | 149.20 seconds
+polynome | MSE (train) : 0.0308946876875 | MSE (test) : 0.000186663125 | size : 7.85 | 1731.65 seconds
