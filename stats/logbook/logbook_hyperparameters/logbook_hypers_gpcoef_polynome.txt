@@ -1,0 +1,15 @@
+{'n_tournament': 3, 'init_depth': 4, 'pop_size': 200, 'mse': 0.011545244347345839}
+{'n_tournament': 3, 'init_depth': 5, 'pop_size': 200, 'mse': 0.013595959117687309}
+{'n_tournament': 3, 'init_depth': 6, 'pop_size': 200, 'mse': 0.011041615785570487}
+{'n_tournament': 3, 'init_depth': 7, 'pop_size': 200, 'mse': 0.017316209652607301}
+{'n_tournament': 4, 'init_depth': 4, 'pop_size': 200, 'mse': 0.0087412845313353006}
+{'n_tournament': 4, 'init_depth': 5, 'pop_size': 200, 'mse': 0.013256026475358665}
+{'n_tournament': 4, 'init_depth': 6, 'pop_size': 200, 'mse': 0.0082298417903083326}
+{'n_tournament': 4, 'init_depth': 7, 'pop_size': 200, 'mse': 0.007387386614588232}
+{'n_tournament': 5, 'init_depth': 4, 'pop_size': 200, 'mse': 0.018413426563087743}
+{'n_tournament': 5, 'init_depth': 5, 'pop_size': 200, 'mse': 0.0088655133042762988}
+{'n_tournament': 5, 'init_depth': 6, 'pop_size': 200, 'mse': 0.045615306962730473}
+{'n_tournament': 5, 'init_depth': 7, 'pop_size': 200, 'mse': 0.014514012010516953}
+{'n_tournament': 6, 'init_depth': 4, 'pop_size': 200, 'mse': 0.010047953475484457}
+{'n_tournament': 6, 'init_depth': 5, 'pop_size': 200, 'mse': 0.016935069736206117}
+{'n_tournament': 6, 'init_depth': 6, 'pop_size': 200, 'mse': 0.042425668168038042}

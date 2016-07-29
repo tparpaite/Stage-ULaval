@@ -8,3 +8,11 @@ bioavailability | MSE (train) : 3640.16991399 | MSE (test) : 1126.30743987 | siz
 airfoil | MSE (train) : 784.32016283 | MSE (test) : 758.687094816 | size : 17.0 | 1450.75 seconds
 spacega | MSE (train) : 0.0688236133335 | MSE (test) : 0.0686227700292 | size : 3.55 | 1174.63 seconds
 compactiv | MSE (train) : 847.848576309 | MSE (test) : 836.861463221 | size : 16.1 | 6798.72 seconds
+polynome | MSE (train) : 0.025600437067 | MSE (test) : 0.00088804530267 | size : 11.45 | 2513.67 seconds
+keijzer_6 | MSE (train) : 0.76538456618 | MSE (test) : 0.530964566107 | size : 12.55 | 3835.42 seconds
+boston | MSE (train) : 32.8799938945 | MSE (test) : 16.1473147208 | size : 16.8 | 6123.69 seconds
+pagie_1 | MSE (train) : 0.4986056825 | MSE (test) : 0.258472909783 | size : 10.3 | 8372.86 seconds
+vladislavleva_4 | MSE (train) : 0.178599019462 | MSE (test) : 0.120193918739 | size : 17.0 | 17136.42 seconds
+bioavailability | MSE (train) : 37271.5448174 | MSE (test) : 171.118048464 | size : 17.0 | 19121.38 seconds
+nguyen_7 | MSE (train) : 0.0226434814575 | MSE (test) : 0.0209630630102 | size : 15.95 | 22757.86 seconds
+spacega | MSE (train) : 0.0676307324483 | MSE (test) : 0.0672272297692 | size : 8.1 | 23875.55 seconds

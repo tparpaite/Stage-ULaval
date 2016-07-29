@@ -8,3 +8,14 @@ Lmod is automatically replacing "compilers/intel/14.0" with "compilers/gcc/4.9"
 Inactive Modules:
   1) mpi/openmpi/1.6.5
 
+/home/thpar33/.bashrc: line 4: module: command not found
+/home/thpar33/.bashrc: line 5: module: command not found
+/home/thpar33/.bashrc: line 6: module: command not found
+
+Lmod is automatically replacing "compilers/intel/14.0" with "compilers/gcc/4.9"
+
+
+Inactive Modules:
+  1) mpi/openmpi/1.6.5
+
+=>> PBS: job killed: walltime 43244 exceeded limit 43200

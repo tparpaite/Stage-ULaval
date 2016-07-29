@@ -8,3 +8,4 @@ vladislavleva_4 | MSE (train) : 0.00205458 | MSE (test) : 0.00307812 | 131.89 se
 airfoil | MSE (train) : 34.321 | MSE (test) : 35.3937 | 144.56 seconds
 spacega | MSE (train) : 0.0405687 | MSE (test) : 0.040711 | 355.30 seconds
 compactiv | MSE (train) : 32.6915 | MSE (test) : 33.037 | 1095.30 seconds
+onlinepop | MSE (train) : 1.35419e+08 | MSE (test) : 1.35414e+08 | 4087.41 seconds

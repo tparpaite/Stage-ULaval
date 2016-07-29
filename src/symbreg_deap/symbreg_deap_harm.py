@@ -21,7 +21,7 @@ from deap import gp
 # Hyperparametres  #
 ####################
 
-NEVALS_TOTAL = 10000
+NEVALS_TOTAL = 100000
 
 # Chemin relatif du repertoire logbook
 LOGBOOK_PATH = "../../stats/logbook/"
