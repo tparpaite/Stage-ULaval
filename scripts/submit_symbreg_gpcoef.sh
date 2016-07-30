@@ -1,9 +1,9 @@
 #!/bin/bash
 #PBS -N GP coef
 #PBS -A suj-571-aa
-#PBS -l nodes=1:gpus=8
+#PBS -l nodes=1:gpus=6
 #PBS -l walltime=12:00:00
-#PBS -t [0-10]
+#PBS -t [0-14]
 #PBS -M tparpaite@gmail.com
 #PBS -m bea
 #PBS -o $HOME/Stage-ULaval/scripts/outputs/gpcoef_%I.out
