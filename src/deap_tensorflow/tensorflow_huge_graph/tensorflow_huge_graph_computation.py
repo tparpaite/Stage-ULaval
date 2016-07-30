@@ -111,7 +111,7 @@ def tensorflow_init(pop_info, n_inputs):
     return pop_graph
 
 
-# tensorflow_train
+# tensorflow_train_bis
 # Entrainement du reseau de neurones avec le learning_rate passe en parametre
 # Cette fonction retourne les coefficients optimaux ainsi que le MSE apres entrainement
 
@@ -186,7 +186,7 @@ def tensorflow_run(pop_info, pop_graph, trX, trY, teX, teY, n_epochs):
     
     # Premiere iteration
     best_index_individual = 0
-    tensorflow_train(0, pop_info, pop_graph, trX, trY, teX, teY, n_epochs)
+    tensorflow_train(0, pop_info, pop_graph, sess, trX, trY, teX, teY, n_epochs)
 
     # Entrainement des sous-graphes
     # On parallelise cette boucle dans l'ideal TODO
