@@ -33,9 +33,9 @@ N_EPOCHS = 150
 LOGBOOK_PATH = "../../stats/logbook/"
 
 classical_hyperparameters = {
-    'pop_size': 300,
-    'n_tournament': 3,
-    'init_depth': 2,
+    'pop_size': 500,
+    'n_tournament': 5,
+    'init_depth': 5,
 }
 
 
@@ -167,7 +167,7 @@ def eval_symbreg(individual, pset, trX, trY, teX, teY):
     tmp_optimized_weights = tfc.tensorflow_run(individual_tensor, trX, trY, teX, teY, N_EPOCHS)
 
     # On verifie que TensorFlow n'a pas diverge (dans ce cas il retourne NaN pour le mse)
-    if tmp_optimized_weights != None:
+    if not(tmp_optimized_weights is None):
         individual.optimized_weights = tmp_optimized_weights
     
     # Evaluation du MSE sur l'ensemble test
@@ -262,7 +262,7 @@ def deaptensorflow_launch_evolution(hyperparameters, toolbox, pset, mstats, trX,
 # On cree tout d'abord les outils permettant de faire de la GP (initialisation)
 # Puis on lance le processus d'evolution de la GP sur chaque pli du 5-fold x4
 
-def deaptensorflow_run(hyperparameters, pset, dataX, dataY, kfold):
+def deaptensorflow_run(n_fold, hyperparameters, pset, dataX, dataY, kfold):
     random.seed(318)
 
     # Initialisation de la GP
@@ -279,43 +279,42 @@ def deaptensorflow_run(hyperparameters, pset, dataX, dataY, kfold):
     mstats.register("max", np.max)
 
     # On boucle sur le 5-fold x4 (cross validation) 
-    # NB : POUR LE MOMENT UN SEUL 5-fold
+    # NB : POUR LE MOMENT UN SEUL pli de 5-fold
     stats_dic = { 'mse_train': [], 'mse_test': [], 'size': [] }
 
-    for tr_index, te_index in kfold:
-        trX, teX = dataX[tr_index], dataX[te_index]
-        trY, teY = dataY[tr_index], dataY[te_index]
+    kfold = list(kfold)
+
+    tr_index, te_index = kfold[n_fold]
+    trX, teX = dataX[tr_index], dataX[te_index]
+    trY, teY = dataY[tr_index], dataY[te_index]
         
-        # Evolution de la population et retour du meilleur individu
-        best_individual, log = deaptensorflow_launch_evolution(hyperparameters, toolbox, pset,
-                                                               mstats, trX, trY, teX, teY)
+    # Evolution de la population et retour du meilleur individu
+    best_individual, log = deaptensorflow_launch_evolution(hyperparameters, toolbox, pset,
+                                                           mstats, trX, trY, teX, teY)
     
-        # Evaluation de l'individu en train
-        func = toolbox.compile(expr=best_individual)
-        optimized_weights = best_individual.optimized_weights
-        mse_train = mean_squarred_error(func, optimized_weights, trX, trY)
-
-        # On recupere les informations dans le dictionnaire de stats
-        mse_test = best_individual.fitness.values[0][0]
-        size = best_individual.height
-        stats_dic['mse_train'].append(mse_train)
-        stats_dic['mse_test'].append(mse_test)
-        stats_dic['size'].append(size)
-        logbook_list.append(log)
-
-        #####################################################################
-        # /!\ TODO : optimiser encore plus loin les coef du best_individual #
-        #####################################################################
+    # Evaluation de l'individu en train
+    func = toolbox.compile(expr=best_individual)
+    optimized_weights = best_individual.optimized_weights
+    mse_train = mean_squarred_error(func, optimized_weights, trX, trY)
     
-        print "Coefficients optimaux  : ", best_individual.optimized_weights
-        print "MSE : ", mse_test
-        # Affichage de l'exp symbolique avec coefficients
-        print gpdt.exp_to_string_with_weights(best_individual)
+    # On recupere les informations dans le dictionnaire de stats
+    mse_test = best_individual.fitness.values[0][0]
+    size = best_individual.height
+    stats_dic['mse_train'].append(mse_train)
+    stats_dic['mse_test'].append(mse_test)
+    stats_dic['size'].append(size)
     
-    logbook = stats.merge_logbook(logbook_list)
-
+    #####################################################################
+    # /!\ TODO : optimiser encore plus loin les coef du best_individual #
+    #####################################################################
+    
+    # print "Coefficients optimaux  : ", best_individual.optimized_weights
+    # print "MSE : ", mse_test
+    # Affichage de l'exp symbolique avec coefficients
+    # print gpdt.exp_to_string_with_weights(best_individual)
+                                                        
     # On retourne le dictionnaire contenant les informations sur les stats ainsi que le lobgook
-    return stats_dic, logbook
+    return stats_dic, log
 
 
 ###############
@@ -323,8 +322,8 @@ def deaptensorflow_run(hyperparameters, pset, dataX, dataY, kfold):
 ###############
 
 def usage(argv):
-    if len(sys.argv) != 2 or not(sys.argv[1] in load.dataset_list): 
-        err_msg = "Usage : python symbreg_deap_tensorflow.py data_name\n"
+    if len(sys.argv) != 3 or not(sys.argv[1] in load.dataset_list): 
+        err_msg = "Usage : python symbreg_deap_tensorflow.py data_name n_fold\n"
         err_msg += "Jeux de donnees disponibles : "
         err_msg += str([dataset for dataset in load.dataset_list]) + "\n"
         sys.stderr.write(err_msg)
@@ -335,6 +334,7 @@ def main():
     # Chargement des donnees
     usage(sys.argv)
     dataset = sys.argv[1]
+    n_fold = int(sys.argv[2])
     run = "load.load_" + dataset + "()"
     dataX, dataY, kfold = eval(run)
 
@@ -343,26 +343,27 @@ def main():
     pset = create_primitive_set(n_args)
 
     # Recherche des hyperparametres optimaux (ou chargement si deja calcule)
-    hyperparameters = deaptensorflow_hyperparameters(pset, dataset, dataX, dataY, kfold)
+    # hyperparameters = deaptensorflow_hyperparameters(pset, dataset, dataX, dataY, kfold)
+    hyperparameters = classical_hyperparameters
 
     # Aprentissage automatique
     begin = time.time()
-    stats_dic, logbook = deaptensorflow_run(hyperparameters, pset, dataX, dataY, kfold)
+    stats_dic, logbook = deaptensorflow_run(n_fold, hyperparameters, pset, dataX, dataY, kfold)
     runtime = "{:.2f} seconds".format(time.time() - begin)
 
     # Sauvegarde du dictionnaire contenant les stats
-    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpcoef_" + dataset + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpcoef_" + dataset + "_fold" + str(n_fold) + ".pickle"
     pickle.dump(stats_dic, open(logbook_filename, 'w'))
 
     # Sauvegarde du logbook
-    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpcoef_" + dataset + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpcoef_" + dataset + "_fold" + str(n_fold) + ".pickle"
     pickle.dump(logbook, open(logbook_filename, 'w'))
 
     # Sauvegarde du mse
     mse_train_mean = np.mean(stats_dic['mse_train'])
     mse_test_mean = np.mean(stats_dic['mse_test'])
     size_mean = np.mean(stats_dic['size'])
-    log_mse = dataset + " | MSE (train) : " + str(mse_train_mean) + " | MSE (test) : " + str(mse_test_mean) 
+    log_mse = dataset + " (fold" + str(n_fold) + ") | MSE (train) : " + str(mse_train_mean) + " | MSE (test) : " + str(mse_test_mean) 
     log_mse += " | size : " + str(size_mean) + " | " + runtime + "\n"
     logbook_filename = LOGBOOK_PATH + "logbook_mse/logbook_mse_gpcoef.txt"
     fd = open(logbook_filename, 'a')

@@ -162,7 +162,7 @@ def tensorflow_train(index_individual, pop_info, pop_graph, sess, trX, trY, teX,
             best_weights = current_weights.copy()
     
     # On verifie que TensorFlow n'a pas diverge (dans ce cas il retourne NaN pour le mse)
-    if best_weights['weights'] == None:
+    if best_weights['weights'] is None:
         n_weights = pop_info[index_individual]['weights']
         best_weights['weights'] = sess.run(tf.random_normal([n_weights]))
 

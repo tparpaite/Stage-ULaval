@@ -8,7 +8,8 @@ import gp_deap_tensorflow as gpdt
 ####################
 
 BATCH_SIZE = 50
-LEARNING_RATE_SAMPLE = [0.1, 0.01, 0.001]
+# LEARNING_RATE_SAMPLE = [0.1, 0.01, 0.001]
+LEARNING_RATE = 0.001
 REG_SCALE = 1
 
 
@@ -137,19 +138,23 @@ def tensorflow_run(individual_tensor, trX, trY, teX, teY, n_epochs):
     ################# TMP #################
 
     # Initialisation avec une valeur de mse maximale
-    best_weights = { 'weights': None, 'mse': sys.float_info.max, 'learning_rate': None }
+    # best_weights = { 'weights': None, 'mse': sys.float_info.max, 'learning_rate': None }
 
     # On entraine le reseau trois fois avec un learning rate different
-    for learning_rate in LEARNING_RATE_SAMPLE:
-        w, mse = tensorflow_train(sess, individual_tensor, trX, trY, teX, teY, n_epochs, learning_rate)
-        current_weights = { 'weights': w, 'mse': mse, 'learning_rate': learning_rate }
-        
-        if current_weights['mse'] < best_weights['mse']:
-            best_weights = current_weights.copy()
+    # UNE FOIS POUR LE MOMENT
+    # for learning_rate in LEARNING_RATE_SAMPLE:
+    # w, mse = tensorflow_train(sess, individual_tensor, trX, trY, teX, teY, n_epochs, learning_rate)
+    #    current_weights = { 'weights': w, 'mse': mse, 'learning_rate': learning_rate }
+    # if current_weights['mse'] < best_weights['mse']:
+    #        best_weights = current_weights.copy()
 
     ################# TMP #################
     # print "Learning rate : " + str(best_weights['learning_rate']) + " | MSE : Before " + str(before) + " / After " + str(best_weights['mse'])
     ################# TMP #################
 
     # On retourne les poids optimaux obtenus avec le learning rate adequat
-    return best_weights['weights']
+    # return best_weights['weights']
+
+    w, mse = tensorflow_train(sess, individual_tensor, trX, trY, teX, teY, n_epochs, LEARNING_RATE)
+
+    return w
