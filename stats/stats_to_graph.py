@@ -24,7 +24,7 @@ from deap import gp
 ####################
 
 X_LIMIT = 10250
-Y_LIMIT = 10000
+Y_LIMIT = 1
 
 # Chemin relatif du repertoire logbook
 LOGBOOK_PATH = "./logbook/"
