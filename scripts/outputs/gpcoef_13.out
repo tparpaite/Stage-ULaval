@@ -1,0 +1,45 @@
+Debut GP coef (bioavailability 3)
+   	      	          fitness          	             size             
+   	      	---------------------------	------------------------------
+gen	nevals	avg	max	min	std	avg 	max	min	std   
+0  	500   	nan	nan	nan	nan	7.12	48 	2  	8.7935
+1  	857   	nan	nan	nan	nan	6.848	48 	1  	8.40553
+2  	1236  	5184.31	138425	1771.73	6080.37	6.504	50 	1  	7.73421
+3  	1602  	4234.7 	45673.9	1771.73	3045.43	4.876	33 	1  	5.04466
+4  	1961  	4278.41	220516 	1759.41	13337.9	4.768	24 	1  	4.90206
+5  	2332  	nan    	nan    	nan    	nan    	4.752	32 	1  	4.79526
+6  	2687  	nan    	nan    	nan    	nan    	4.908	40 	1  	4.93473
+7  	3056  	32108.1	1.2456e+07	1014.42	562767 	4.652	36 	3  	4.40805
+8  	3422  	248113 	5.40943e+07	1014.42	3.26602e+06	4.654	24 	1  	4.05688
+9  	3796  	3.65966e+06	1.32891e+09	1014.42	6.26358e+07	5.648	22 	1  	4.81789
+10 	4159  	1.3297e+06 	4.39557e+08	1014.42	2.00599e+07	6.376	22 	1  	5.10594
+11 	4509  	nan        	nan        	nan    	nan        	7.524	27 	1  	5.70486
+12 	4873  	3.61692e+06	8.71678e+08	1014.42	4.32512e+07	10.244	27 	1  	6.23766
+13 	5230  	nan        	nan        	nan    	nan        	12.318	29 	1  	6.11301
+14 	5582  	nan        	nan        	nan    	nan        	13.394	30 	1  	5.91699
+15 	5954  	nan        	nan        	nan    	nan        	14.646	32 	1  	5.50969
+16 	6330  	nan        	nan        	nan    	nan        	15.03 	34 	3  	5.1054 
+17 	6700  	5.7527e+06 	9.52087e+08	897.727	6.26692e+07	15.4  	35 	1  	4.94206
+18 	7069  	1.58087e+06	6.94486e+08	913.12 	3.1042e+07 	15.056	39 	3  	5.13272
+19 	7436  	1.33889e+08	3.70994e+10	913.12 	1.91787e+09	15.304	39 	2  	5.53024
+20 	7815  	nan        	nan        	nan    	nan        	15.078	33 	3  	5.3859 
+21 	8177  	nan        	nan        	nan    	nan        	15.358	32 	1  	5.80429
+22 	8552  	nan        	nan        	nan    	nan        	15.908	40 	3  	5.91841
+23 	8918  	nan        	nan        	nan    	nan        	16.876	38 	3  	6.07162
+24 	9299  	nan        	nan        	nan    	nan        	17.366	40 	2  	6.77879
+25 	9644  	nan        	nan        	nan    	nan        	17.542	46 	1  	6.55685
+26 	9992  	nan        	nan        	nan    	nan        	18.04 	55 	1  	7.3361 
+27 	10364 	nan        	nan        	nan    	nan        	18.366	57 	1  	7.83454
+Fin GP coef (bioavailability 3)
+Set compute mode to DEFAULT for GPU 0000:88:00.0.
+All done.
+Set compute mode to DEFAULT for GPU 0000:87:00.0.
+All done.
+Set compute mode to DEFAULT for GPU 0000:84:00.0.
+All done.
+Set compute mode to DEFAULT for GPU 0000:83:00.0.
+All done.
+Set compute mode to DEFAULT for GPU 0000:09:00.0.
+All done.
+Set compute mode to DEFAULT for GPU 0000:08:00.0.
+All done.
