@@ -23,8 +23,8 @@ from deap import gp
 # Hyperparametres  #
 ####################
 
-X_LIMIT = 10250
-Y_LIMIT = 1
+X_LIMIT = 10000
+Y_LIMIT = 120
 
 # Chemin relatif du repertoire logbook
 LOGBOOK_PATH = "./logbook/"
@@ -135,8 +135,6 @@ def create_fig_box(dataset, logbook_stats_dic, stats_type):
     # On recupere les tableaux souhaites (la condition vient pour le cas ou stats_type vaut size)
     data_array = [logbook_stats_dic[key][stats_type] for key in keys if stats_type in logbook_stats_dic[key]]
 
-    print data_array
-
     # On creer les boxs
     fig, axes = plt.subplots(figsize=(8,6))
     axes.boxplot(data_array, 0, '')
@@ -202,7 +200,7 @@ def stats_run(dataset):
     logbook_stats_dic = eval(run)
     create_fig_box(dataset, logbook_stats_dic, 'mse_train')
     create_fig_box(dataset, logbook_stats_dic, 'mse_test')
-    create_fig_box(dataset, logbook_stats_dic, 'size')
+    # create_fig_box(dataset, logbook_stats_dic, 'size')
 
 
 ################
