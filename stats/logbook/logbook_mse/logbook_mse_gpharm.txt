@@ -30,3 +30,5 @@ vladislavleva_4 | MSE (train) : 0.162455985594 | MSE (test) : 0.144442670955 | s
 airfoil | MSE (train) : 694.538184641 | MSE (test) : 674.131286258 | size : 16.45 | 11069.21 seconds
 spacega | MSE (train) : 0.0563026795511 | MSE (test) : 0.0544824651739 | size : 8.35 | 16985.94 seconds
 compactiv | MSE (train) : 434.36825516 | MSE (test) : 430.576570606 | size : 16.4 | 46937.87 seconds
+boston | MSE (train) : 73.8867176281 | MSE (test) : 62.5349780118 | size : 6.65 | 350.78 seconds
+bioavailability | MSE (train) : 1956.28692743 | MSE (test) : 1504.0500747 | size : 7.45 | 590.74 seconds
