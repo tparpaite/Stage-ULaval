@@ -27,3 +27,5 @@ nguyen_7 | MSE (train) : 0.0412972394864 | MSE (test) : 0.0403714735154 | size :
 bioavailability | MSE (train) : 2202.05329155 | MSE (test) : 1154.50513284 | size : 15.85 | 624.85 seconds
 spacega | MSE (train) : 0.0720250061473 | MSE (test) : 0.0720164235631 | size : 2.05 | 1268.32 seconds
 airfoil | MSE (train) : 817.908155058 | MSE (test) : 793.902932754 | size : 16.6 | 1503.17 seconds
+compactiv | MSE (train) : 1742.03516675 | MSE (test) : 1697.28173124 | size : 15.75 | 5285.21 seconds
+boston | MSE (train) : 56.5246569684 | MSE (test) : 49.0102563456 | size : 7.35 | 287.47 seconds

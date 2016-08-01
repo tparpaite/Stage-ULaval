@@ -157,4 +157,7 @@ def tensorflow_run(individual_tensor, trX, trY, teX, teY, n_epochs):
 
     w, mse = tensorflow_train(sess, individual_tensor, trX, trY, teX, teY, n_epochs, LEARNING_RATE)
 
+    if isNan(mse):
+        return None
+
     return w

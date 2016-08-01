@@ -25,3 +25,10 @@ keijzer_6 | MSE (train) : 2.1982143869 | MSE (test) : 0.510376646236 | size : 12
 boston | MSE (train) : 37.9613709952 | MSE (test) : 28.1696890993 | size : 12.4 | 4229.29 seconds
 pagie_1 | MSE (train) : 0.403122433797 | MSE (test) : 0.385193578494 | size : 4.25 | 4706.78 seconds
 bioavailability | MSE (train) : 84868.0532917 | MSE (test) : 1104.47765274 | size : 11.85 | 5471.49 seconds
+nguyen_7 | MSE (train) : 0.0423445077961 | MSE (test) : 0.0383438530875 | size : 13.95 | 7795.97 seconds
+vladislavleva_4 | MSE (train) : 0.162455985594 | MSE (test) : 0.144442670955 | size : 14.75 | 9061.60 seconds
+airfoil | MSE (train) : 694.538184641 | MSE (test) : 674.131286258 | size : 16.45 | 11069.21 seconds
+spacega | MSE (train) : 0.0563026795511 | MSE (test) : 0.0544824651739 | size : 8.35 | 16985.94 seconds
+compactiv | MSE (train) : 434.36825516 | MSE (test) : 430.576570606 | size : 16.4 | 46937.87 seconds
+boston | MSE (train) : 73.8867176281 | MSE (test) : 62.5349780118 | size : 6.65 | 350.78 seconds
+bioavailability | MSE (train) : 1956.28692743 | MSE (test) : 1504.0500747 | size : 7.45 | 590.74 seconds

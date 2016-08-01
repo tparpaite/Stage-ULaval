@@ -293,7 +293,7 @@ def deaptensorflow_run(n_fold, hyperparameters, pset, dataX, dataY, kfold):
                                                            mstats, trX, trY, teX, teY)
     
     # Evaluation de l'individu en train
-    func = toolbox.compile(expr=best_individual)
+    func, n_weights = gpdt.compile_with_weights(best_individual, pset)
     optimized_weights = best_individual.optimized_weights
     mse_train = mean_squarred_error(func, optimized_weights, trX, trY)
     

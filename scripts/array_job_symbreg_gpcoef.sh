@@ -5,7 +5,7 @@ dataset_list=('vladislavleva_4' 'boston' 'bioavailability')
 dataset_fold_list=()
 
 for i in ${dataset_list[@]};
-do for j in `seq 0 5`;
+do for j in `seq 0 4`;
     do dataset_fold_list+=("$i $j"); done;
 done
 
