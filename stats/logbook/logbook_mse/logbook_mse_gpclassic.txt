@@ -30,3 +30,9 @@ airfoil | MSE (train) : 817.908155058 | MSE (test) : 793.902932754 | size : 16.6
 compactiv | MSE (train) : 1742.03516675 | MSE (test) : 1697.28173124 | size : 15.75 | 5285.21 seconds
 boston | MSE (train) : 56.5246569684 | MSE (test) : 49.0102563456 | size : 7.35 | 287.47 seconds
 bioavailability | MSE (train) : 2202.05329155 | MSE (test) : 1154.50513284 | size : 15.85 | 703.39 seconds
+boston | MSE (train) : 56.5246569684 | MSE (test) : 49.0102563456 | size : 20.1 | 282.83 seconds
+pagie_1 | MSE (train) : 0.436841938688 | MSE (test) : 0.420016761831 | size : 9.45 | 415.38 seconds
+bioavailability | MSE (train) : 2202.05329155 | MSE (test) : 1154.50513284 | size : 115.25 | 702.07 seconds
+boston | MSE (train) : 95.5425183899 | MSE (test) : 14.8097449036 | size : 162.4 | 6526.83 seconds
+pagie_1 | MSE (train) : 0.230618437568 | MSE (test) : 0.220017811459 | size : 95.8 | 10801.69 seconds
+bioavailability | MSE (train) : 137415.081849 | MSE (test) : 202.232200185 | size : 769.55 | 20539.51 seconds

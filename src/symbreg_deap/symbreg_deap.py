@@ -21,7 +21,7 @@ from deap import gp
 # Hyperparametres  #
 ####################
 
-NEVALS_TOTAL = 10000
+NEVALS_TOTAL = 100000
 
 # Chemin relatif du repertoire logbook
 LOGBOOK_PATH = "../../stats/logbook/"
@@ -465,11 +465,11 @@ def main():
     runtime = "{:.2f} seconds".format(time.time() - begin)
     
     # Sauvegarde du dictionnaire contenant les stats
-    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpclassic_" + dataset + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpclassic_100k_" + dataset + ".pickle"
     pickle.dump(stats_dic, open(logbook_filename, 'w'))
 
     # Sauvegarde du logbook
-    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpclassic_" + dataset + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpclassic_100k_" + dataset + ".pickle"
     pickle.dump(logbook, open(logbook_filename, 'w'))
 
     # Sauvegarde du mse

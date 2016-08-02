@@ -7,6 +7,14 @@ import tensorflow as tf
 from deap import gp
 from deap import tools
 
+
+####################
+# Hyperparametres  #
+####################
+
+NEVALS_TOTAL = 100000
+
+
 #################################################
 # GP Tree compilation functions with weights    #
 #################################################

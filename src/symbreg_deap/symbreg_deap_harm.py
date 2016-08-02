@@ -545,11 +545,11 @@ def main():
     runtime = "{:.2f} seconds".format(time.time() - begin)
 
     # Sauvegarde du dictionnaire contenant les stats
-    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpharm_" + dataset + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpharm_100k_" + dataset + ".pickle"
     pickle.dump(stats_dic, open(logbook_filename, 'w'))
 
     # Sauvegarde du logbook
-    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpharm_" + dataset + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpharm_100k_" + dataset + ".pickle"
     pickle.dump(logbook, open(logbook_filename, 'w'))
 
     # Sauvegarde du mse

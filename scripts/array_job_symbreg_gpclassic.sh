@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Liste des jeux de donnees
-dataset_list=('polynome' 'keijzer_6' 'nguyen_7' 'pagie_1' 'vladislavleva_4' 'boston' 'bioavailability' 'airfoil' 'onlinepop' 'compactiv' 'spacega')
+dataset_list=('pagie_1' 'boston' 'bioavailability')
 dataset=${dataset_list[$1]}
 
 # On se place dans le repertoire contenant la methode de regression symbolique

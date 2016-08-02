@@ -1,6 +1,13 @@
-Debut GP coef (vladislavleva_4 3)
-Set compute mode to DEFAULT for GPU 0000:87:00.0.
-All done.
+Debut GP coef (pagie_1 3)
+   	      	                fitness                 	              size             
+   	      	----------------------------------------	-------------------------------
+gen	nevals	avg    	max    	min     	std     	avg  	max	min	std    
+0  	100   	1.81159	2.67056	0.194145	0.921099	8.395	43 	2  	7.67717
+0  	200   	1.81254	2.67056	0.194145	0.923194	8.39714	43 	2  	7.62754
+0  	300   	1.80349	2.67056	0.194145	0.927929	8.23625	43 	2  	7.45556
+0  	400   	1.80107	2.67056	0.194145	0.923223	8.36667	43 	2  	7.69942
+0  	500   	1.79734	2.67056	0.194145	0.924649	8.458  	43 	2  	7.76481
+Fin GP coef (pagie_1 3)
 Set compute mode to DEFAULT for GPU 0000:84:00.0.
 All done.
 Set compute mode to DEFAULT for GPU 0000:83:00.0.
@@ -8,6 +15,8 @@ All done.
 Set compute mode to DEFAULT for GPU 0000:09:00.0.
 All done.
 Set compute mode to DEFAULT for GPU 0000:08:00.0.
+All done.
+Set compute mode to DEFAULT for GPU 0000:05:00.0.
 All done.
 Set compute mode to DEFAULT for GPU 0000:04:00.0.
 All done.
