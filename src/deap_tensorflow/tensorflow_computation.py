@@ -157,7 +157,12 @@ def tensorflow_run(individual_tensor, trX, trY, teX, teY, n_epochs):
 
     w, mse = tensorflow_train(sess, individual_tensor, trX, trY, teX, teY, n_epochs, LEARNING_RATE)
 
-    if isNan(mse):
+    # Les poids ont explose, on reessaie avec un learning rate plus faible
+    if np.isnan(mse):
+        w, mse = tensorflow_train(sess, individual_tensor, trX, trY, teX, teY, n_epochs, 0.0001)
+
+    # L'optimisation n'est pas convaincante avec cet individu
+    if np.isnan(mse):
         return None
 
     return w

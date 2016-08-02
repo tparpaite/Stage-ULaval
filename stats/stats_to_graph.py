@@ -86,7 +86,7 @@ def load_logbooks_stats(dataset):
 # Dessine la courbe en fonction des donnees contenues dans un logbook
 # X : Nombre d'individus evalues
 # Y : MSE en test du meilleur individu
-def create_curve(fig, logbook, color, label):
+def create_curve_mse(fig, logbook, color, label):
     X = np.array(logbook.select("nevals"))
     Y = np.array(logbook.chapters["fitness"].select("min"))
 
@@ -109,9 +109,9 @@ def create_fig_mse(logbook_dic):
     axes.set_ylim([0,Y_LIMIT])
     
     # Creation des courbes
-    curve_gpclassic = create_curve(axes, logbook_dic['gpclassic'], "b", "GP classique")
-    curve_gpharm = create_curve(axes, logbook_dic['gpharm'], "r", "GP harm")
-    #curve_gpcoef = create_curve(fig, logbook_dic['gpcoef'], "g", "GP coef")
+    curve_gpclassic = create_curve_mse(axes, logbook_dic['gpclassic'], "b", "GP classique")
+    curve_gpharm = create_curve_mse(axes, logbook_dic['gpharm'], "r", "GP harm")
+    #curve_gpcoef = create_curve_mse(fig, logbook_dic['gpcoef'], "g", "GP coef")
 
     # Affichage graphique
     curves = curve_gpclassic + curve_gpharm
@@ -121,6 +121,48 @@ def create_fig_mse(logbook_dic):
     # Sauvegarde au format PDF
     dataset = logbook_dic['dataset']
     filename = FIG_PATH + "fig_gp_" + dataset + '.pdf'
+    fig.savefig(filename)
+    print filename + " successfully generated"
+
+
+# Dessine la courbe en fonction des donnees contenues dans un logbook
+# X : Nombre d'individus evalues
+# Y : Taille moyenne des individus en fonction du nombre d'evaluations
+def create_curve_size(fig, logbook, color, label):
+    X = np.array(logbook.select("nevals"))
+    Y = np.array(logbook.chapters["size"].select("avg"))
+
+    return fig.plot(X, Y, linestyle="-", marker="o", color=color, label=label, markevery=10)
+
+
+# create_fig_size
+# Affiche les stats de la taille moyenne des individus en fonction du nb d'eval sous forme de graphe
+# Chaque courbe represente une methode de GP differente
+# X : Nombre d'individus evalues
+# Y : Taille moyenne des individus (en nombre de noeuds)
+# Nom de la figure : "Taille moyenne des individus en fonction du nombre d'evaluations" 
+def create_fig_size(logbook_dic):
+    fig, axes = plt.subplots(figsize=(15,6))
+
+    # On ajuste les axes
+    axes.set_xlabel("Nombre d'individus evalues")
+    axes.set_ylabel("Taille moyenne des individus (en nombre de noeuds)")
+    axes.set_xlim([0,X_LIMIT])
+    #axes.set_ylim([0,Y_LIMIT])
+    
+    # Creation des courbes
+    curve_gpclassic = create_curve_size(axes, logbook_dic['gpclassic'], "b", "GP classique")
+    curve_gpharm = create_curve_size(axes, logbook_dic['gpharm'], "r", "GP harm")
+    #curve_gpcoef = create_curve_size(fig, logbook_dic['gpcoef'], "g", "GP coef")
+
+    # Affichage graphique
+    curves = curve_gpclassic + curve_gpharm
+    labels = [c.get_label() for c in curves]
+    axes.legend(curves, labels, loc="best")
+
+    # Sauvegarde au format PDF
+    dataset = logbook_dic['dataset']
+    filename = FIG_PATH + "fig_gp_size_" + dataset + '.pdf'
     fig.savefig(filename)
     print filename + " successfully generated"
 
@@ -139,7 +181,7 @@ def create_fig_box(dataset, logbook_stats_dic, stats_type):
     fig, axes = plt.subplots(figsize=(8,6))
     axes.boxplot(data_array, 0, '')
 
-    axes.set_ylim([0,Y_LIMIT])
+    #axes.set_ylim([0,Y_LIMIT])
 
     # On affiche la legende correcte sur l'axe des abscisses
     axes.set_xticklabels(keys)
@@ -190,17 +232,19 @@ def merge_logbook(logbook_list):
 
 
 def stats_run(dataset):
-    # Creation de la figure MSE
+    # Creation de la figure MSE et size (en fonction du nombre d'evaluations)
     run = "load_logbooks_gp(\"" + dataset + "\")"
     logbook_dic = eval(run)
     create_fig_mse(logbook_dic)
+    create_fig_size(logbook_dic)
+    
     
     # Creation de la figure box pour size, mse en train et en test
     run = "load_logbooks_stats(\"" + dataset + "\")"
     logbook_stats_dic = eval(run)
     create_fig_box(dataset, logbook_stats_dic, 'mse_train')
     create_fig_box(dataset, logbook_stats_dic, 'mse_test')
-    # create_fig_box(dataset, logbook_stats_dic, 'size')
+    create_fig_box(dataset, logbook_stats_dic, 'size')
 
 
 ################
