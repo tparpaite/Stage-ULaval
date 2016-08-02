@@ -299,7 +299,7 @@ def deaptensorflow_run(n_fold, hyperparameters, pset, dataX, dataY, kfold):
     
     # On recupere les informations dans le dictionnaire de stats
     mse_test = best_individual.fitness.values[0][0]
-    size = best_individual.height
+    size = len(best_individual)
     stats_dic['mse_train'].append(mse_train)
     stats_dic['mse_test'].append(mse_test)
     stats_dic['size'].append(size)

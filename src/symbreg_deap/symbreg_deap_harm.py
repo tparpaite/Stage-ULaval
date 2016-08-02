@@ -258,15 +258,11 @@ def harm(population, toolbox, cxpb, mutpb, nevals_total, alpha,
     for ind, fit in zip(invalid_ind, fitnesses):
         nevals += 1
 
-        # On arrete la GP si on a depasse 100 000 evaluations
-        if nevals > NEVALS_TOTAL:
-            break
-
         # On met a jour l'individu et la population valide
         ind.fitness.values = fit
         valid_ind.append(ind)
         
-        # Si on est sur un multiple de 100n on ajoute au logbook
+        # Si on est sur un multiple de 100 on ajoute au logbook
         if nevals%100 == 0:
             # Append the current generation statistics to the logbook (every 100 points)
             record = stats.compile(valid_ind) if stats else {}
@@ -326,7 +322,7 @@ def harm(population, toolbox, cxpb, mutpb, nevals_total, alpha,
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
         
-        # Individus dont la fitness a ete evaluee
+        # Individus dont la fitness a ete evaluee a la generation precedente
         valid_ind = [ind for ind in offspring if ind.fitness.valid]
 
         # Affichage de l'evolutionen en fonction du nombre d'individus evalues tous les 100 points
@@ -458,7 +454,7 @@ def deap_launch_evolution(hyperparameters, toolbox, pset, mstats, trX, trY, teX,
     
     # Using HARM-GP extended
     pop, log = harm(pop, toolbox, 0.5, 0.1, NEVALS_TOTAL, alpha=0.05, beta=10, gamma=0.25, 
-                    rho=0.9, stats=mstats, halloffame=hof, verbose=False)
+                    rho=0.9, stats=mstats, halloffame=hof, verbose=True)
    
     # On retourne le meilleur individu a la fin du processus d'evolution ains que les logs
     best_individual = hof[0] 
@@ -504,7 +500,7 @@ def deap_run(hyperparameters, pset, dataX, dataY, kf_array):
             
             # On recupere les informations dans le dictionnaire de stats
             mse_test = best_individual.fitness.values[0][0]
-            size = best_individual.height
+            size = len(best_individual)
             stats_dic['mse_train'].append(mse_train)
             stats_dic['mse_test'].append(mse_test)
             stats_dic['size'].append(size)

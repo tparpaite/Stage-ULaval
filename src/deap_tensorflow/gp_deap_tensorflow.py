@@ -397,18 +397,28 @@ def harm(population, toolbox, cxpb, mutpb, nevals_total, alpha,
     for ind, fit in zip(invalid_ind, fitnesses):
         ind.fitness.values = fit
 
+    # Individus dont la fitness a ete evaluee (normalement tableau vide a la premiere generation)
+    valid_ind = [ind for ind in population if ind.fitness.valid]
         
-    # Update the hall of fame with the generated individuals
+    # Affichage de l'evolution du MSE en fonction du nombre d'individus evalues tous les 100 points
+    for ind, fit in zip(invalid_ind, fitnesses):
+        nevals += 1
+
+        # On met a jour l'individu et la population valide
+        ind.fitness.values = fit
+        valid_ind.append(ind)
+        
+        # Si on est sur un multiple de 100 on ajoute au logbook
+        if nevals%100 == 0:
+            # Append the current generation statistics to the logbook (every 100 points)
+            record = stats.compile(valid_ind) if stats else {}
+            logbook.record(gen=gen, nevals=nevals, **record)
+            if verbose:
+                print logbook.stream 
+
+    # Premiere generation : toute la population est evaluee)
     if halloffame is not None:
         halloffame.update(population)
-
-    # Append the current generation statistics to the logbook
-    record = stats.compile(population) if stats else {}
-    nevals_gen = len(invalid_ind)
-    nevals += nevals_gen
-    logbook.record(gen=gen, nevals=nevals, **record)
-    if verbose:
-        print logbook.stream 
 
     # Begin the generational process
     while nevals < nevals_total:
@@ -457,23 +467,36 @@ def harm(population, toolbox, cxpb, mutpb, nevals_total, alpha,
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+
+        # Individus dont la fitness a ete evaluee a la generation precedente
+        valid_ind = [ind for ind in offspring if ind.fitness.valid]
+
+         # Affichage de l'evolutionen en fonction du nombre d'individus evalues tous les 100 points
         for ind, fit in zip(invalid_ind, fitnesses):
+            nevals += 1
+            
+            # On arrete la GP si on a depasse 100 000 evaluations
+            if nevals > NEVALS_TOTAL:
+                break
+
+            # On met a jour l'individu et la population valide
             ind.fitness.values = fit
+            valid_ind.append(ind)
+
+            # Si on est sur un multiple de 100, on ajoute au logbook
+            if nevals%100 == 0:
+                # Append the current generation statistics to the logbook (every 100 points)
+                record = stats.compile(valid_ind) if stats else {}
+                logbook.record(gen=gen, nevals=nevals, **record)
+                if verbose:
+                    print logbook.stream 
 
         # Update the hall of fame with the generated individuals
         if halloffame is not None:
-            halloffame.update(offspring)
+            halloffame.update(valid_ind)
 
-        # Replace the current population by the offspring
-        population[:] = offspring
-
-        # Append the current generation statistics to the logbook
-        record = stats.compile(population) if stats else {}
-        nevals_gen = len(invalid_ind)
-        nevals += nevals_gen
-        logbook.record(gen=gen, nevals=nevals, **record)
-        if verbose:
-            print logbook.stream 
+        # Replace the current population by the offspring (evaluated)
+        population[:] = valid_ind
 
     return population, logbook
 
