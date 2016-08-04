@@ -8,3 +8,8 @@ bioavailability (fold2) | MSE (train) : 1818.43421679 | MSE (test) : 1616.815658
 boston (fold4) | MSE (train) : 32.207399167 | MSE (test) : 20.5389361182 | size : 51.0 | 25579.11 seconds
 bioavailability (fold3) | MSE (train) : 966.638080869 | MSE (test) : 836.479124015 | size : 20.0 | 16346.40 seconds
 bioavailability (fold4) | MSE (train) : 1833.7135444 | MSE (test) : 1759.23791932 | size : 3.0 | 11521.69 seconds
+keijzer_6 (fold0) | MSE (train) : 0.0955861726759 | MSE (test) : 0.0448838766703 | size : 26.0 | 11829.24 seconds
+keijzer_6 (fold1) | MSE (train) : 0.0394412077475 | MSE (test) : 0.0320784593373 | size : 30.0 | 12014.54 seconds
+keijzer_6 (fold4) | MSE (train) : 0.0891332091552 | MSE (test) : 0.0486416075423 | size : 25.0 | 11121.62 seconds
+keijzer_6 (fold2) | MSE (train) : 0.0644198323625 | MSE (test) : 0.075037888422 | size : 26.0 | 11267.14 seconds
+keijzer_6 (fold3) | MSE (train) : 0.0509811225293 | MSE (test) : 0.0449348318472 | size : 27.0 | 11655.63 seconds

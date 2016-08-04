@@ -8,7 +8,7 @@ import gp_tensorflow_huge_graph as gpth
 ####################
 
 BATCH_SIZE = 50
-LEARNING_RATE_SAMPLE = [0.1, 0.01, 0.001]
+LEARNING_RATE_SAMPLE = [0.1, 0.01, 0.001, 0.0001, 0.00001]
 REG_SCALE = 1
 
 
@@ -90,7 +90,7 @@ def tensorflow_init(pop_info, n_inputs):
 
     for i in range(n_individuals):
         n_weights = pop_info[i]['n_weights']
-        weights_tab[i] = tf.Variable(tf.random_normal([n_weights]))
+        weights_tab[i] = tf.Variable(tf.random_normal([n_weights], stddev=0.001))
 
     # Creation du placeholder contenant le learning rate
     learning_rate = tf.placeholder(tf.float32)
@@ -163,8 +163,9 @@ def tensorflow_train(index_individual, pop_info, pop_graph, sess, trX, trY, teX,
     
     # On verifie que TensorFlow n'a pas diverge (dans ce cas il retourne NaN pour le mse)
     if best_weights['weights'] is None:
-        n_weights = pop_info[index_individual]['weights']
-        best_weights['weights'] = sess.run(tf.random_normal([n_weights]))
+        print "NAN DETECTED POUR TROIS LEARNING RATE"
+        n_weights = pop_info[index_individual]['n_weights']
+        best_weights['weights'] = sess.run(tf.random_normal([n_weights], stddev=0.001))
 
     # On met a jour pop_info
     pop_info[index_individual]['optimized_weights'] = best_weights['weights']

@@ -127,7 +127,7 @@ def training_100x1(individual, pset, trX, trY, teX, teY):
     tmp_optimized_weights = tfc.tensorflow_run(individual_tensor, trX, trY, teX, teY, N_EPOCHS)
 
     # On verifie que TensorFlow n'a pas diverge (dans ce cas il retourne NaN pour le mse)
-    if tmp_optimized_weights is None:
+    if not(tmp_optimized_weights is None):
         individual.optimized_weights = tmp_optimized_weights
     
     # Evaluation du MSE sur l'ensemble test
