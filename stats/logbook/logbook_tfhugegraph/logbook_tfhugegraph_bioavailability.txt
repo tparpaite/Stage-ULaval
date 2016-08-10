@@ -1,6 +1,1 @@
-{'runtime_1x100': '1118.39 seconds', 'runtime_100x1': '120.27 seconds', 'mse_100x1': 4332.9538743581406, 'mse_1x100': 5571.510416666667}
-{'runtime_1x100': '1884.85 seconds', 'runtime_100x1': '140.05 seconds', 'mse_100x1': 4332.9538743581406, 'mse_1x100': 5571.510416666667}
-{'runtime_1x100': '1639.56 seconds', 'runtime_100x1': '127.48 seconds', 'mse_100x1': 4332.9538743581406, 'mse_1x100': nan}
-{'runtime_1x100': '1635.21 seconds', 'runtime_100x1': '132.09 seconds', 'mse_100x1': 4332.9538743581406, 'mse_1x100': 5571.510416666667}
-{'runtime_1x100': '1342.41 seconds', 'runtime_100x1': '140.51 seconds', 'mse_100x1': 4332.9526749962151, 'mse_1x100': 5571.510416666667}
-{'runtime_1x100': '1328.69 seconds', 'runtime_100x1': '135.15 seconds', 'mse_100x1': 4332.9538743581406, 'mse_1x100': 5571.510416666667}
+{'runtime_1x100': '465.78 seconds', 'runtime_100x1': '137.03 seconds', 'mse_100x1': 4332.9538743581406, 'mse_1x100': 5571.510416666667}

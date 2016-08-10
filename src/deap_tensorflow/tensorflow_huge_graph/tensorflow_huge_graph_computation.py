@@ -39,7 +39,7 @@ class PopGraph:
         n_individuals = len(self.pop_info)
         losses_sum = tf.add_n(self.loss_tab)
         losses_avg = tf.div(losses_sum, n_individuals)
-        self.train_op = tf.train.RMSPropOptimizer(LEARNING_RATE, decay=0.9, momentum=0.5, epsilon=1e-10, 
+        self.train_op = tf.train.RMSPropOptimizer(self.learning_rate, decay=0.9, momentum=0.5, epsilon=1e-10, 
                                                   use_locking=False, name='RMSProp').minimize(losses_avg)
  
         
@@ -47,6 +47,18 @@ class PopGraph:
 ######################################################
 # Definition des fonctions necessaires a TensorFlow  #
 ######################################################
+
+
+# On calcule le MSE par rapport a l'ensemble test
+def mean_squarred_error(func, optimized_weights, teX, teY):
+    sqerrors = 0
+    n_elements = len(teX)
+
+    for x, y in zip(teX, teY):
+        sqerrors += (y - func(optimized_weights, *x)) ** 2
+
+    return sqerrors / n_elements
+
 
 # tensorflow_create_individual_subgraph
 # Creation du la partie propre a chaque individu dans le huge graphe
@@ -151,6 +163,8 @@ def tensorflow_train(pop_info, pop_graph, sess, trX, trY, teX, teY, n_epochs, le
 # Retourne le MSE du meilleur individu
 
 def tensorflow_update_mse(pop_info, pop_graph, sess, trX, trY, teX, teY):
+    n_individuals = len(pop_info)
+
     # MSE maximum a l'initialisation
     best_mse = sys.float_info.max
 
@@ -169,32 +183,6 @@ def tensorflow_update_mse(pop_info, pop_graph, sess, trX, trY, teX, teY):
 
     return best_mse
 
-<<<<<<< HEAD
-def tensorflow_train(index_individual, pop_info, pop_graph, sess, trX, trY, teX, teY, n_epochs):
-    # Initialisation avec une valeur de mse maximale
-    best_weights = { 'weights': None, 'mse': sys.float_info.max, 'learning_rate': None }
-    
-    # On entraine le reseau trois fois avec un learning rate different
-    for learning_rate in LEARNING_RATE_SAMPLE:
-        w, mse = tensorflow_train_bis(index_individual, pop_info, pop_graph, sess, 
-                                      trX, trY, teX, teY, n_epochs, learning_rate)
-        current_weights = { 'weights': w, 'mse': mse, 'learning_rate': learning_rate }
-
-        if current_weights['mse'] < best_weights['mse']:
-            best_weights = current_weights.copy()
-    
-    # On verifie que TensorFlow n'a pas diverge (dans ce cas il retourne NaN pour le mse)
-    if best_weights['weights'] is None:
-        print "NAN DETECTED POUR TROIS LEARNING RATE"
-        n_weights = pop_info[index_individual]['n_weights']
-        best_weights['weights'] = sess.run(tf.random_normal([n_weights]))
-
-    # On met a jour pop_info
-    pop_info[index_individual]['optimized_weights'] = best_weights['weights']
-    pop_info[index_individual]['mse'] = best_weights['mse']
-    
-=======
->>>>>>> fa66c9ec1923c90f99c0bc78dd41862b17ee8591
 
 # tensorflow_run
 # Cette fonction retourne l'indice du meilleur individu de la population apres train
@@ -210,10 +198,10 @@ def tensorflow_run(pop_info, pop_graph, trX, trY, teX, teY, n_epochs):
     sess.run(init)
     
     # Entraine tous les individus en parallele
-    tensorflow_train(pop_info, pop_graph, sess, trX, trY, teX, teY, n_epochs)
+    tensorflow_train(pop_info, pop_graph, sess, trX, trY, teX, teY, n_epochs, LEARNING_RATE)
 
     # Pour chaque individu : on calcule le MSE en test
     # On met a jour pop_info, et on retourne le MSE du meilleur individu
-    best_mse = tensorflow_update_mse()
+    best_mse = tensorflow_update_mse(pop_info, pop_graph, sess, trX, trY, teX, teY)
 
     return best_mse 

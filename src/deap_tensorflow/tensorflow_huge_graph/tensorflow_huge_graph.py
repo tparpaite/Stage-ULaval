@@ -224,9 +224,9 @@ def tensorflow_huge_graph_run(dataX, dataY, kfold):
     pop = toolbox.population(n=POP_SIZE)
 
     # Evolution TF 100x1
-    # begin = time.time()
-    # mse_100x1 = launch_training_100x1(pop, pset, trX, trY, teX, teY)
-    # runtime_100x1 = "{:.2f} seconds".format(time.time() - begin)
+    begin = time.time()
+    mse_100x1 = launch_training_100x1(pop, pset, trX, trY, teX, teY)
+    runtime_100x1 = "{:.2f} seconds".format(time.time() - begin)
 
     # Evolution TF 1x100
     begin = time.time()

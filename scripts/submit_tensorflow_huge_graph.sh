@@ -6,8 +6,8 @@
 #PBS -t [0]
 #PBS -M tparpaite@gmail.com
 #PBS -m bea
-#PBS -o $HOME/Stage-ULaval/scripts/outputs/tfhugegraph_%I.out
-#PBS -e $HOME/Stage-ULaval/scripts/outputs/tfhugegraph_%I.err
+#PBS -o $HOME/Stage-ULaval/scripts/outputs/tfhugegraph_bis_%I.out
+#PBS -e $HOME/Stage-ULaval/scripts/outputs/tfhugegraph_bis_%I.err
 
 # Chargement des modules
 module load compilers/gcc/4.8.5
