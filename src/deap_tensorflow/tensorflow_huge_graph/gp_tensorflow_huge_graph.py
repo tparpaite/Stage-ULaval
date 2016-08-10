@@ -254,7 +254,7 @@ def create_tensor_node(index_individual, pop_graph, x, left_tree, right_tree, w_
             W = pop_graph.weights_tab[index_individual]
             const_eph = tf.constant(value, dtype="float")
 
-            return tf.mul(const_eph, W[w_index])
+            return tf.nn.sigmoid(tf.mul(const_eph, W[w_index]))
 
         # La feuille correspond a un argument
         else:
@@ -265,7 +265,7 @@ def create_tensor_node(index_individual, pop_graph, x, left_tree, right_tree, w_
             column = X[:, arg_index]
 
             # On cree le noeud en choissisant le bon argument (colonne)
-            return tf.mul(column, W[w_index])
+            return tf.nn.sigmoid(tf.mul(column, W[w_index]))
 
 
 ##########################################################################################

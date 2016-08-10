@@ -6,8 +6,8 @@
 #PBS -t [0-2]
 #PBS -M tparpaite@gmail.com
 #PBS -m bea
-#PBS -o $HOME/Stage-ULaval/scripts/outputs/gpclassic_100k_%I.out
-#PBS -e $HOME/Stage-ULaval/scripts/outputs/gpclassic_100k_%I.err
+#PBS -o $HOME/Stage-ULaval/scripts/outputs/gpclassic_%I.out
+#PBS -e $HOME/Stage-ULaval/scripts/outputs/gpclassic_%I.err
 
 # Chargement des modules
 module load compilers/gcc/4.9

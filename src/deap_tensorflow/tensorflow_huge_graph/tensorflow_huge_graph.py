@@ -129,7 +129,7 @@ def training_100x1(individual, pset, trX, trY, teX, teY):
     # On verifie que TensorFlow n'a pas diverge (dans ce cas il retourne NaN pour le mse)
     if not(tmp_optimized_weights is None):
         individual.optimized_weights = tmp_optimized_weights
-    
+
     # Evaluation du MSE sur l'ensemble test
     return mean_squarred_error(func, individual.optimized_weights, teX, teY)[0]
 

@@ -388,6 +388,17 @@ def min_rectifier(x):
     return min(x, 0)
 
 
+def protectedDiv(left, right):
+    with np.errstate(divide='ignore', invalid='ignore'):
+        x = np.divide(left, right)
+        if isinstance(x, np.ndarray):
+            x[np.isinf(x)] = 1
+            x[np.isnan(x)] = 1
+        elif np.isinf(x) or np.isnan(x):
+            x = 1
+    return x
+
+
 # On regroupe les primitives dans un ensemble
 def create_primitive_set(n_args):
     pset = gp.PrimitiveSet("MAIN", n_args)
@@ -396,6 +407,7 @@ def create_primitive_set(n_args):
     pset.addPrimitive(operator.mul, 2)
     pset.addPrimitive(max_rectifier, 1)
     pset.addPrimitive(min_rectifier, 1)
+    pset.addPrimitive(protectedDiv, 2)
     pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
 
     return pset
@@ -545,18 +557,18 @@ def main():
     runtime = "{:.2f} seconds".format(time.time() - begin)
 
     # Sauvegarde du dictionnaire contenant les stats
-    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpharm_100k_" + dataset + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpharm_" + dataset + ".pickle"
     pickle.dump(stats_dic, open(logbook_filename, 'w'))
 
     # Sauvegarde du logbook
-    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpharm_100k_" + dataset + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpharm_" + dataset + ".pickle"
     pickle.dump(logbook, open(logbook_filename, 'w'))
 
     # Sauvegarde du mse
     mse_train_mean = np.mean(stats_dic['mse_train'])
     mse_test_mean = np.mean(stats_dic['mse_test'])
     size_mean = np.mean(stats_dic['size'])
-    log_mse = dataset + " | MSE (train) : " + str(mse_train_mean) + " | MSE (test) : " + str(mse_test_mean) 
+    log_mse = dataset + " 10k | MSE (train) : " + str(mse_train_mean) + " | MSE (test) : " + str(mse_test_mean) 
     log_mse += " | size : " + str(size_mean) + " | " + runtime + "\n"
     logbook_filename = LOGBOOK_PATH + "logbook_mse/logbook_mse_gpharm.txt"
     fd = open(logbook_filename, 'a')

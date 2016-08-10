@@ -2,8 +2,8 @@
 #PBS -N GP classique
 #PBS -A suj-571-aa
 #PBS -l nodes=1:ppn=8
-#PBS -l walltime=00:30:00
-#PBS -t [0-1]
+#PBS -l walltime=12:00:00
+#PBS -t [0]
 #PBS -M tparpaite@gmail.com
 #PBS -m bea
 #PBS -o $HOME/Stage-ULaval/scripts/outputs/gpclassic_urg_%I.out

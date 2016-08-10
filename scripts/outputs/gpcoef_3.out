@@ -1,26 +1,108 @@
-Debut GP coef (pagie_1 3)
-   	      	                fitness                 	              size             
-   	      	----------------------------------------	-------------------------------
-gen	nevals	avg    	max    	min     	std     	avg  	max	min	std    
-0  	100   	1.81159	2.67056	0.194145	0.921099	8.395	43 	2  	7.67717
-0  	200   	1.81254	2.67056	0.194145	0.923194	8.39714	43 	2  	7.62754
-0  	300   	1.80349	2.67056	0.194145	0.927929	8.23625	43 	2  	7.45556
-0  	400   	1.80107	2.67056	0.194145	0.923223	8.36667	43 	2  	7.69942
-0  	500   	1.79734	2.67056	0.194145	0.924649	8.458  	43 	2  	7.76481
-Fin GP coef (pagie_1 3)
-Set compute mode to DEFAULT for GPU 0000:84:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:83:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:09:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:08:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:05:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:04:00.0.
-All done.
-Debut GP coef (pagie_1 3)
+Debut GP coef (boston 3)
+   	      	          fitness          	              size             
+   	      	---------------------------	-------------------------------
+gen	nevals	avg	max	min	std	avg  	max	min	std    
+0  	100   	nan	nan	nan	nan	8.405	49 	2  	9.05213
+0  	200   	nan	nan	nan	nan	8.27286	49 	2  	8.88891
+0  	300   	nan	nan	nan	nan	8.2225 	49 	2  	8.83448
+0  	400   	nan	nan	nan	nan	8.34778	49 	2  	9.04029
+0  	500   	nan	nan	nan	nan	8.292  	49 	2  	8.85905
+1  	600   	nan	nan	nan	nan	6.00446	40 	1  	5.15431
+1  	700   	nan	nan	nan	nan	5.89198	40 	1  	4.88043
+1  	800   	nan	nan	nan	nan	5.82547	40 	1  	5.02848
+2  	900   	nan	nan	nan	nan	7.12658	19 	2  	4.91025
+2  	1000  	nan	nan	nan	nan	6.93411	19 	1  	4.74786
+2  	1100  	nan	nan	nan	nan	6.78492	38 	1  	4.80411
+2  	1200  	nan	nan	nan	nan	6.83406	38 	1  	4.85542
+3  	1300  	135.004	652.723	37.035	113.497	7.72973	21 	1  	4.45548
+3  	1400  	nan    	nan    	nan   	nan    	8.17544	21 	1  	4.66913
+3  	1500  	nan    	nan    	nan   	nan    	8.08052	21 	1  	4.59602
+3  	1600  	nan    	nan    	nan   	nan    	7.96907	21 	1  	4.54679
+4  	1700  	nan    	nan    	nan   	nan    	8.74561	22 	1  	4.66475
+4  	1800  	nan    	nan    	nan   	nan    	8.80793	22 	1  	4.56287
+4  	1900  	nan    	nan    	nan   	nan    	8.75701	22 	1  	4.52994
+5  	2000  	nan    	nan    	nan   	nan    	9.3141 	20 	1  	3.9788 
+5  	2100  	nan    	nan    	nan   	nan    	9.375  	20 	1  	3.96272
+5  	2200  	nan    	nan    	nan   	nan    	9.21629	21 	1  	4.10205
+5  	2300  	nan    	nan    	nan   	nan    	9.14693	21 	1  	4.05855
+6  	2400  	nan    	nan    	nan   	nan    	9.70588	21 	3  	3.79193
+6  	2500  	nan    	nan    	nan   	nan    	9.84321	22 	3  	3.94295
+6  	2600  	nan    	nan    	nan   	nan    	9.90181	22 	2  	4.03994
+6  	2700  	nan    	nan    	nan   	nan    	9.71047	22 	1  	3.97894
+7  	2800  	nan    	nan    	nan   	nan    	10.4213	22 	3  	3.85221
+7  	2900  	nan    	nan    	nan   	nan    	10.5403	23 	3  	3.99149
+7  	3000  	nan    	nan    	nan   	nan    	10.5494	23 	2  	4.1015 
+8  	3100  	1171.89	185697 	26.1659	14279.4	12.119 	25 	3  	3.91397
+8  	3200  	nan    	nan    	nan    	nan    	11.9925	25 	2  	4.10587
+8  	3300  	nan    	nan    	nan    	nan    	11.8071	26 	2  	4.21285
+8  	3400  	nan    	nan    	nan    	nan    	11.812 	27 	2  	4.34748
+9  	3500  	nan    	nan    	nan    	nan    	13     	33 	5  	4.52954
+9  	3600  	nan    	nan    	nan    	nan    	13.1456	33 	1  	4.87529
+9  	3700  	nan    	nan    	nan    	nan    	13.0856	33 	1  	4.7823 
+10 	3800  	43.2971	778.199	26.1659	77.1254	14.741 	27 	5  	4.71541
+10 	3900  	44287.2	1.05469e+07	26.1659	680786 	14.1799	29 	3  	5.32589
+10 	4000  	31267.7	1.05469e+07	26.1659	571977 	14.2832	34 	1  	5.58517
+10 	4100  	nan    	nan        	nan    	nan    	14.205 	34 	1  	5.53752
+11 	4200  	nan    	nan        	nan    	nan    	15.354 	29 	1  	4.78664
+11 	4300  	nan    	nan        	nan    	nan    	15.4291	30 	1  	5.0484 
+11 	4400  	nan    	nan        	nan    	nan    	15.1745	33 	1  	5.01521
+11 	4500  	nan    	nan        	nan    	nan    	15.1649	33 	1  	5.08741
+12 	4600  	nan    	nan        	nan    	nan    	15.875 	33 	1  	4.52537
+12 	4700  	nan    	nan        	nan    	nan    	15.5915	33 	1  	4.79826
+12 	4800  	nan    	nan        	nan    	nan    	15.6302	45 	1  	5.31446
+12 	4900  	nan    	nan        	nan    	nan    	15.4587	45 	1  	5.33702
+13 	5000  	nan    	nan        	nan    	nan    	15.8696	33 	3  	4.5881 
+13 	5100  	nan    	nan        	nan    	nan    	16.1531	47 	3  	5.81355
+13 	5200  	nan    	nan        	nan    	nan    	15.8919	47 	2  	5.78977
+14 	5300  	nan    	nan        	nan    	nan    	16.938 	53 	3  	6.47805
+14 	5400  	nan    	nan        	nan    	nan    	16.9345	53 	3  	7.16067
+14 	5500  	nan    	nan        	nan    	nan    	16.7599	53 	3  	6.90448
+14 	5600  	nan    	nan        	nan    	nan    	16.6154	53 	3  	6.74019
+15 	5700  	58.9919	2618.64    	23.5829	223.938	16.5636	39 	7  	5.6314 
+15 	5800  	276.514	53629.4    	23.1557	3289.86	16.7132	39 	3  	5.77509
+15 	5900  	447.757	74263.8    	23.1557	4781.4 	16.9945	51 	3  	6.54007
+15 	6000  	nan    	nan        	nan    	nan    	16.9957	51 	3  	7.03937
+16 	6100  	nan    	nan        	nan    	nan    	18.1571	49 	5  	8.25931
+16 	6200  	nan    	nan        	nan    	nan    	18.4674	55 	3  	8.97313
+16 	6300  	nan    	nan        	nan    	nan    	18.3836	65 	3  	9.26181
+16 	6400  	nan    	nan        	nan    	nan    	18.2138	65 	1  	9.04622
+17 	6500  	nan    	nan        	nan    	nan    	18.1549	65 	3  	9.33534
+17 	6600  	nan    	nan        	nan    	nan    	18.1472	65 	3  	9.25158
+17 	6700  	nan    	nan        	nan    	nan    	18.3474	65 	3  	9.47849
+18 	6800  	30.8556	174.15     	22.4455	16.9727	19.0331	73 	3  	9.80432
+18 	6900  	76.698 	7889.72    	22.1618	502.567	19.1076	73 	3  	10.1145
+18 	7000  	nan    	nan        	nan    	nan    	18.8889	73 	1  	10.6365
+18 	7100  	nan    	nan        	nan    	nan    	18.7716	73 	1  	10.2546
+19 	7200  	nan    	nan        	nan    	nan    	19.764 	73 	1  	10.6571
+19 	7300  	nan    	nan        	nan    	nan    	20.1007	73 	1  	11.2139
+19 	7400  	nan    	nan        	nan    	nan    	20.1429	89 	1  	11.5633
+19 	7500  	nan    	nan        	nan    	nan    	20.2134	89 	1  	11.9936
+20 	7600  	39.6401	625.125    	21.747 	65.102 	20.3512	61 	1  	10.8256
+20 	7700  	5.8968e+16	1.79852e+19	21.747 	1.02814e+18	20.4066	84 	1  	11.6286
+20 	7800  	4.4408e+16	1.79852e+19	21.747 	8.92589e+17	20.5136	84 	1  	11.6582
+21 	7900  	25.4793   	52.2445    	21.747 	4.11032    	22.0889	61 	3  	11.1245
+21 	8000  	57.5615   	3041.03    	20.9247	209.347    	21.8894	64 	1  	12.3263
+21 	8100  	25490.8   	8.48018e+06	18.8384	462625     	21.7493	74 	1  	12.8891
+21 	8200  	19641.7   	8.48018e+06	18.8384	406124     	21.7264	80 	1  	13.0185
+22 	8300  	29.1112   	293.953    	21.0464	27.3251    	22.0238	55 	7  	8.92559
+22 	8400  	117.739   	21390.4    	19.8804	1303.19    	22.6007	97 	1  	13.5399
+22 	8500  	101.586   	21390.4    	19.7639	1113.25    	22.4321	98 	1  	14.3345
+22 	8600  	124.265   	21390.4    	19.7639	1171.84    	22.9786	98 	1  	14.6182
+23 	8700  	35.1385   	644.311    	19.7639	59.4555    	22.662 	97 	1  	11.3996
+23 	8800  	141.44    	27376.4    	19.224 	1552.81    	21.9904	111	1  	13.2068
+23 	8900  	122.977   	27376.4    	17.7136	1353.4     	22.1622	111	1  	14.0623
+24 	9000  	24.0007   	49.578     	19.224 	4.13167    	23.7162	76 	11 	12.4868
+24 	9100  	nan       	nan        	nan    	nan        	24.3226	83 	3  	14.2045
+24 	9200  	nan       	nan        	nan    	nan        	23.8994	111	3  	14.5815
+24 	9300  	nan       	nan        	nan    	nan        	23.3058	111	2  	14.2283
+25 	9400  	28.8058   	378.099    	19.7639	30.8702    	23.8824	83 	9  	12.5813
+25 	9500  	38.3389   	625.48     	19.7639	63.0665    	24.3125	83 	3  	14.189 
+25 	9600  	nan       	nan        	nan    	nan        	24.0941	95 	3  	14.6279
+26 	9700  	nan       	nan        	nan    	nan        	23.3562	79 	13 	11.8851
+26 	9800  	nan       	nan        	nan    	nan        	23.126 	79 	3  	13.1673
+26 	9900  	nan       	nan        	nan    	nan        	22.6214	90 	3  	13.428 
+26 	10000 	nan       	nan        	nan    	nan        	22.6099	90 	3  	13.6203
+Fin GP coef (boston 3)
 Set compute mode to DEFAULT for GPU 0000:87:00.0.
 All done.
 Set compute mode to DEFAULT for GPU 0000:84:00.0.
@@ -30,23 +112,6 @@ All done.
 Set compute mode to DEFAULT for GPU 0000:09:00.0.
 All done.
 Set compute mode to DEFAULT for GPU 0000:08:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:05:00.0.
-All done.
-Debut GP coef (pagie_1 3)
-Set compute mode to DEFAULT for GPU 0000:88:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:87:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:84:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:83:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:09:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:08:00.0.
-All done.
-Set compute mode to DEFAULT for GPU 0000:05:00.0.
 All done.
 Set compute mode to DEFAULT for GPU 0000:04:00.0.
 All done.

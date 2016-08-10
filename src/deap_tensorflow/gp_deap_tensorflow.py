@@ -142,6 +142,9 @@ def create_string(x, left_tree, right_tree, w_index):
         elif op == "min_rectifier":
             return "min_rectifier({})".format(left_tree)
 
+        elif op == "protectedDiv":
+            return "protectedDiv({}, {})".format(left_tree, right_tree)
+
     # x est une feuille qui correspond un arg ou const ephemere (var)
     else:
         return "w[{}]*{}".format(w_index, x.value)
@@ -252,6 +255,9 @@ def create_tensor_node(individual_tensor, x, left_tree, right_tree, w_index):
 
         elif op == "min_rectifier":
             return tf.minimum(left_tree, 0)
+
+        elif op == "protectedDiv":
+            return tf.div(left_tree, right_tree)
 
     # x est une feuille
     else:

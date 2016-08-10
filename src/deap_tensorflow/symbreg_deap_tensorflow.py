@@ -183,6 +183,17 @@ def min_rectifier(x):
     return min(x, 0)
 
 
+def protectedDiv(left, right):
+    with np.errstate(divide='ignore', invalid='ignore'):
+        x = np.divide(left, right)
+        if isinstance(x, np.ndarray):
+            x[np.isinf(x)] = 1
+            x[np.isnan(x)] = 1
+        elif np.isinf(x) or np.isnan(x):
+            x = 1
+    return x
+
+
 # On regroupe les primitives dans un ensemble
 def create_primitive_set(n_inputs):
     pset = gp.PrimitiveSet("MAIN", n_inputs)
@@ -191,6 +202,7 @@ def create_primitive_set(n_inputs):
     pset.addPrimitive(operator.mul, 2)
     pset.addPrimitive(max_rectifier, 1)
     pset.addPrimitive(min_rectifier, 1)
+    pset.addPrimitive(protectedDiv, 2)
     pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
 
     return pset
@@ -352,11 +364,11 @@ def main():
     runtime = "{:.2f} seconds".format(time.time() - begin)
 
     # Sauvegarde du dictionnaire contenant les stats
-    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpcoef_" + dataset + "_fold" + str(n_fold) + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpcoef_div_" + dataset + "_fold" + str(n_fold) + ".pickle"
     pickle.dump(stats_dic, open(logbook_filename, 'w'))
 
     # Sauvegarde du logbook
-    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpcoef_" + dataset + "_fold" + str(n_fold) + ".pickle"
+    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpcoef_div_" + dataset + "_fold" + str(n_fold) + ".pickle"
     pickle.dump(logbook, open(logbook_filename, 'w'))
 
     # Sauvegarde du mse

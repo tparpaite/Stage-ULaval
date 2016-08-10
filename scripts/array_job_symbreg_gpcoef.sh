@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Liste des jeux de donnees et creation des combinaisons d'appel possibles
-dataset_list=('pagie_1' 'keijzer_6' 'nguyen_7')
+dataset_list=('boston' 'keijzer_6' 'bioavailability')
 dataset_fold_list=()
 
 for i in ${dataset_list[@]};

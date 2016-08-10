@@ -1,40 +1,6 @@
-polynome | MSE (train) : 0.105461223816 | MSE (test) : 7.37105215647e-05 | size : 7.85 | 152.36 seconds
-keijzer_6 | MSE (train) : 0.850730642005 | MSE (test) : 0.810857308415 | size : 5.75 | 351.55 seconds
-boston | MSE (train) : 57.5152230145 | MSE (test) : 48.0624360877 | size : 6.6 | 359.79 seconds
-pagie_1 | MSE (train) : 0.379718457844 | MSE (test) : 0.365722416529 | size : 4.65 | 583.75 seconds
-nguyen_7 | MSE (train) : 0.0899488730617 | MSE (test) : 0.0839010872441 | size : 6.25 | 796.43 seconds
-vladislavleva_4 | MSE (train) : 0.228002209172 | MSE (test) : 0.220440538868 | size : 5.85 | 729.21 seconds
-bioavailability | MSE (train) : 1894.21687474 | MSE (test) : 1538.70729665 | size : 7.65 | 554.21 seconds
-airfoil | MSE (train) : 908.834452154 | MSE (test) : 906.517801038 | size : 15.2 | 1222.78 seconds
-spacega | MSE (train) : 0.0743681774344 | MSE (test) : 0.069652008268 | size : 3.05 | 1256.59 seconds
-compactiv | MSE (train) : 3322.20570506 | MSE (test) : 3281.75329397 | size : 14.35 | 4547.76 seconds
-polynome | MSE (train) : 0.0286825416563 | MSE (test) : 2.82148736853e-33 | size : 6.1 | 1671.82 seconds
-keijzer_6 | MSE (train) : 0.751764402343 | MSE (test) : 0.607854453928 | size : 9.95 | 4236.43 seconds
-boston | MSE (train) : 37.7269654107 | MSE (test) : 22.7055093489 | size : 11.45 | 4228.85 seconds
-pagie_1 | MSE (train) : 0.321875791316 | MSE (test) : 0.311796201808 | size : 7.0 | 5695.63 seconds
-bioavailability | MSE (train) : 7598.02748135 | MSE (test) : 1126.95093001 | size : 11.8 | 5785.21 seconds
-nguyen_7 | MSE (train) : 0.0294752693389 | MSE (test) : 0.0287099599543 | size : 16.25 | 8301.19 seconds
-vladislavleva_4 | MSE (train) : 0.140215317271 | MSE (test) : 0.126471292799 | size : 15.1 | 10014.89 seconds
-airfoil | MSE (train) : 732.131060647 | MSE (test) : 712.379789254 | size : 15.7 | 11860.23 seconds
-spacega | MSE (train) : 0.0541684887796 | MSE (test) : 0.0539001247764 | size : 9.95 | 14978.48 seconds
-boston | MSE (train) : 62.6886686549 | MSE (test) : 56.6685830998 | size : 7.45 | 133.77 seconds
-boston | MSE (train) : 62.6886686549 | MSE (test) : 56.6685830998 | size : 7.45 | 137.55 seconds
-boston | MSE (train) : 73.8867176281 | MSE (test) : 62.5349780118 | size : 6.65 | 149.20 seconds
-polynome | MSE (train) : 0.0308946876875 | MSE (test) : 0.000186663125 | size : 7.85 | 1731.65 seconds
-keijzer_6 | MSE (train) : 2.1982143869 | MSE (test) : 0.510376646236 | size : 12.4 | 3849.47 seconds
-boston | MSE (train) : 37.9613709952 | MSE (test) : 28.1696890993 | size : 12.4 | 4229.29 seconds
-pagie_1 | MSE (train) : 0.403122433797 | MSE (test) : 0.385193578494 | size : 4.25 | 4706.78 seconds
-bioavailability | MSE (train) : 84868.0532917 | MSE (test) : 1104.47765274 | size : 11.85 | 5471.49 seconds
-nguyen_7 | MSE (train) : 0.0423445077961 | MSE (test) : 0.0383438530875 | size : 13.95 | 7795.97 seconds
-vladislavleva_4 | MSE (train) : 0.162455985594 | MSE (test) : 0.144442670955 | size : 14.75 | 9061.60 seconds
-airfoil | MSE (train) : 694.538184641 | MSE (test) : 674.131286258 | size : 16.45 | 11069.21 seconds
-spacega | MSE (train) : 0.0563026795511 | MSE (test) : 0.0544824651739 | size : 8.35 | 16985.94 seconds
-compactiv | MSE (train) : 434.36825516 | MSE (test) : 430.576570606 | size : 16.4 | 46937.87 seconds
-boston | MSE (train) : 73.8867176281 | MSE (test) : 62.5349780118 | size : 6.65 | 350.78 seconds
-bioavailability | MSE (train) : 1956.28692743 | MSE (test) : 1504.0500747 | size : 7.45 | 590.74 seconds
-boston | MSE (train) : 73.8867176281 | MSE (test) : 62.5349780118 | size : 17.5 | 308.87 seconds
-boston | MSE (train) : 73.8867176281 | MSE (test) : 62.5349780118 | size : 17.5 | 309.08 seconds
-pagie_1 | MSE (train) : 0.388855001644 | MSE (test) : 0.369769460165 | size : 15.6 | 513.64 seconds
-pagie_1 | MSE (train) : 0.388855001644 | MSE (test) : 0.369769460165 | size : 15.6 | 511.13 seconds
-bioavailability | MSE (train) : 1956.28692743 | MSE (test) : 1504.0500747 | size : 22.5 | 520.22 seconds
-bioavailability | MSE (train) : 1956.28692743 | MSE (test) : 1504.0500747 | size : 22.5 | 591.58 seconds
+keijzer_6 10k | MSE (train) : 0.557217419848 | MSE (test) : 0.374167396071 | size : 49.85 | 584.46 seconds
+boston 10k | MSE (train) : 55.3389835465 | MSE (test) : 47.0766405561 | size : 18.65 | 670.32 seconds
+bioavailability 10k | MSE (train) : 1739.9427267 | MSE (test) : 1361.87476563 | size : 27.65 | 907.41 seconds
+keijzer_6 100k | MSE (train) : 0.235848490338 | MSE (test) : 0.122509674111 | size : 63.8 | 6223.37 seconds
+bioavailability 100k | MSE (train) : 9675.80131167 | MSE (test) : 873.200435458 | size : 55.35 | 12989.29 seconds
+boston 100k | MSE (train) : 36.672736604 | MSE (test) : 22.2855376874 | size : 62.25 | 13834.76 seconds
