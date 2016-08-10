@@ -114,7 +114,7 @@ def tensorflow_init(pop_info, n_inputs):
     # Creation du placeholder contenant le learning rate
     learning_rate = tf.placeholder(tf.float32)
 
-    # Creation du tableau contenant le mse, loss et train_op pour chaque individu
+    # Creation du tableau contenant le mse et le loss pour chaque individu
     mse_tab = [None] * n_individuals
     loss_tab = [None] * n_individuals
  
@@ -138,8 +138,6 @@ def tensorflow_train(pop_info, pop_graph, sess, trX, trY, teX, teY, n_epochs, le
     Y = pop_graph.output
     learning_rate = pop_graph.learning_rate
     train_op = pop_graph.train_op
-    # W = pop_graph.weights_tab[index_individual]
-    # mse = pop_graph.mse_tab[index_individual]
 
     # Lien entre le dataset et les noeuds d'entree/sortie
     dictTrain = { X: trX, Y: trY, learning_rate: learning_rate_value }
@@ -175,7 +173,8 @@ def tensorflow_update_mse(pop_info, pop_graph, sess, trX, trY, teX, teY):
 
         func = pop_info[i]['func']
         optimized_weights = sess.run(pop_graph.weights_tab[i])
-        pop_info[i]['optimized_weights'] = optimized_weights 
+        mse_func = pop_graph.mse_tab[i]
+        pop_info[i]['optimized_weights'] = optimized_weights
         pop_info[i]['mse'] = mean_squarred_error(func, optimized_weights, teX, teY)[0]
 
         if pop_info[i]['mse'] < best_mse:
