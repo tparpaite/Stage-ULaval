@@ -189,14 +189,9 @@ def launch_training_1x100(pop, pset, trX, trY, teX, teY):
     pop_graph = tfhudge.tensorflow_init(pop_info, n_inputs)
 
     # Optimisation des coefficients avec TensorFlow sur l'ensemble train
-    # Les poids optimaux sont mis a jour dans pop_info (effet de bord)
-    # Retourne le index_individual du meilleur individu
-    best_index_individual = tfhudge.tensorflow_run(pop_info, pop_graph, trX, trY, teX, teY, N_EPOCHS)
-    
-    # Evaluation du MSE sur l'ensemble test pour le meilleur individu
-    func = pop_info[best_index_individual]['func']
-    optimized_weights = pop_info[best_index_individual]['optimized_weights']
-    best_mse = mean_squarred_error(func, optimized_weights, teX, teY)[0]
+    # Les poids optimaux et le MSE sont mis a jour dans pop_info (effet de bord)
+    # Retourne le MSE du meilleur individu
+    best_mse = tfhudge.tensorflow_run(pop_info, pop_graph, trX, trY, teX, teY, N_EPOCHS)
             
     return best_mse
     
@@ -229,9 +224,9 @@ def tensorflow_huge_graph_run(dataX, dataY, kfold):
     pop = toolbox.population(n=POP_SIZE)
 
     # Evolution TF 100x1
-    begin = time.time()
-    mse_100x1 = launch_training_100x1(pop, pset, trX, trY, teX, teY)
-    runtime_100x1 = "{:.2f} seconds".format(time.time() - begin)
+    # begin = time.time()
+    # mse_100x1 = launch_training_100x1(pop, pset, trX, trY, teX, teY)
+    # runtime_100x1 = "{:.2f} seconds".format(time.time() - begin)
 
     # Evolution TF 1x100
     begin = time.time()

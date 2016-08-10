@@ -24,7 +24,7 @@ from deap import gp
 ####################
 
 X_LIMIT = 10000
-Y_LIMIT = 120
+Y_LIMIT = 2500
 
 # Chemin relatif du repertoire logbook
 LOGBOOK_PATH = "./logbook/"
@@ -52,7 +52,7 @@ def display_individual_graph(expr):
 def load_logbooks_gp(dataset):
     logbook_dic = {}
     logbook_dic['dataset'] = dataset
-    gpmethod_list = ['gpclassic', 'gpharm']#, 'gpcoef']
+    gpmethod_list = ['gpclassic', 'gpharm', 'gpcoef']
 
     for gpmethod in gpmethod_list:
         path = LOGBOOK_PATH + "logbook_gp/logbook_" + gpmethod + "_" + dataset + ".pickle"
@@ -69,7 +69,7 @@ def load_logbooks_gp(dataset):
 # Retourne un dictionnaire qui contient les logbooks GP d'un dataset
 def load_logbooks_stats(dataset):
     logbook_stats_dic = {}
-    method_list = ['gpclassic', 'gpharm', 'linear', 'svm', 'mlp']#, 'gpcoef']
+    method_list = ['gpclassic', 'gpharm', 'gpcoef', 'linear', 'svm', 'mlp']
 
     for method in method_list:
         path = LOGBOOK_PATH + "logbook_stats/logbook_stats_" + method + "_" + dataset + ".pickle"
@@ -111,10 +111,10 @@ def create_fig_mse(logbook_dic):
     # Creation des courbes
     curve_gpclassic = create_curve_mse(axes, logbook_dic['gpclassic'], "b", "GP classique")
     curve_gpharm = create_curve_mse(axes, logbook_dic['gpharm'], "r", "GP harm")
-    #curve_gpcoef = create_curve_mse(fig, logbook_dic['gpcoef'], "g", "GP coef")
+    curve_gpcoef = create_curve_mse(axes, logbook_dic['gpcoef'], "g", "GP coef")
 
     # Affichage graphique
-    curves = curve_gpclassic + curve_gpharm
+    curves = curve_gpclassic + curve_gpharm + curve_gpcoef
     labels = [c.get_label() for c in curves]
     axes.legend(curves, labels, loc="best")
 
@@ -148,15 +148,15 @@ def create_fig_size(logbook_dic):
     axes.set_xlabel("Nombre d'individus evalues")
     axes.set_ylabel("Taille moyenne des individus (en nombre de noeuds)")
     axes.set_xlim([0,X_LIMIT])
-    #axes.set_ylim([0,Y_LIMIT])
+    axes.set_ylim([0,Y_LIMIT])
     
     # Creation des courbes
     curve_gpclassic = create_curve_size(axes, logbook_dic['gpclassic'], "b", "GP classique")
     curve_gpharm = create_curve_size(axes, logbook_dic['gpharm'], "r", "GP harm")
-    #curve_gpcoef = create_curve_size(fig, logbook_dic['gpcoef'], "g", "GP coef")
+    curve_gpcoef = create_curve_size(axes, logbook_dic['gpcoef'], "g", "GP coef")
 
     # Affichage graphique
-    curves = curve_gpclassic + curve_gpharm
+    curves = curve_gpclassic + curve_gpharm + curve_gpcoef
     labels = [c.get_label() for c in curves]
     axes.legend(curves, labels, loc="best")
 
@@ -173,6 +173,7 @@ def create_fig_size(logbook_dic):
 # Les informations sont affiches sous forme de BOX (min, max, mediane et quartiles)
 def create_fig_box(dataset, logbook_stats_dic, stats_type):
     keys = logbook_stats_dic.keys()
+    keys.sort()
 
     # On recupere les tableaux souhaites (la condition vient pour le cas ou stats_type vaut size)
     data_array = [logbook_stats_dic[key][stats_type] for key in keys if stats_type in logbook_stats_dic[key]]
@@ -181,7 +182,7 @@ def create_fig_box(dataset, logbook_stats_dic, stats_type):
     fig, axes = plt.subplots(figsize=(8,6))
     axes.boxplot(data_array, 0, '')
 
-    #axes.set_ylim([0,Y_LIMIT])
+    axes.set_ylim([0,Y_LIMIT])
 
     # On affiche la legende correcte sur l'axe des abscisses
     axes.set_xticklabels(keys)
@@ -190,6 +191,24 @@ def create_fig_box(dataset, logbook_stats_dic, stats_type):
     filename = FIG_PATH + "fig_" + stats_type + "_" + dataset + '.pdf'
     fig.savefig(filename)
     print filename + " successfully generated"
+
+
+# Retourne un dictionnaire qui contient les logbooks GP d'un dataset
+def load_logbooks_gp(dataset):
+    logbook_dic = {}
+    logbook_dic['dataset'] = dataset
+    gpmethod_list = ['gpclassic', 'gpharm', 'gpcoef']
+
+    for gpmethod in gpmethod_list:
+        path = LOGBOOK_PATH + "logbook_gp/logbook_" + gpmethod + "_" + dataset + ".pickle"
+        if os.path.exists(path):
+            with open(path, 'rb') as f:
+                logbook_dic[gpmethod] = pickle.load(f)
+        else:
+            sys.stderr.write(path + " not found\n")
+            sys.exit(1)
+
+    return logbook_dic
 
 
 # Permet de fusionner des logbook (pour avoir la moyenne des stats sur 5-fold x4)
@@ -201,7 +220,7 @@ def merge_logbook(logbook_list):
     n_logbook = len(logbook_list)
 
     # On recupere le nombre d'entree parmi les logbooks (il est egal pour tous les logbooks)
-    n_entry = len(logbook_list[0])
+    n_entry = len(logbook_list[2])
 
     # Le logbook qui contient les entrees fusionnees
     res = tools.Logbook()
@@ -231,7 +250,55 @@ def merge_logbook(logbook_list):
     return res
 
 
+# merge_logbook_folds
+# On utilise cette fonction dans le cadre de la GP avec optimisation des coefficients
+# Cela sert a fusionner les logbooks des 5 folds
+# - Dans un premier temps on creer la logbook_list et le stats_dic
+# - Puis on realise la fusion a proprement parler
+def merge_logbook_folds(dataset):
+    # Creation de la logbook_list et du logbook_stats_dic
+    logbook_list = [None] * 5
+    stats_dic = { 'mse_train': [], 'mse_test': [], 'size': [] }
+
+    for i in range(5):
+        # logbook_list
+        path = LOGBOOK_PATH + "logbook_gp/logbook_gpcoef_" + dataset + "_fold" + str(i) + ".pickle"
+        if os.path.exists(path):
+            with open(path, 'rb') as f:
+                logbook_list[i] = pickle.load(f)
+        else:
+            sys.stderr.write(path + " not found\n")
+            sys.exit(1)
+
+        # stats_dic
+        path = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpcoef_" + dataset + "_fold" + str(i) + ".pickle"
+        if os.path.exists(path):
+            with open(path, 'rb') as f:
+                stats_dic_fold = pickle.load(f)
+                stats_dic['mse_train'].append(stats_dic_fold['mse_train'])
+                stats_dic['mse_test'].append(stats_dic_fold['mse_test'])
+                stats_dic['size'].append(stats_dic_fold['size'])
+        else:
+            sys.stderr.write(path + " not found\n")
+            sys.exit(1)
+        
+    # Fusion des logbooks GP
+    logbook = merge_logbook(logbook_list)
+
+    # On sauvegarde en dur la fusion des logbooks de 5-fold que l'on vient de realiser
+    # Sauvegarde du dictionnaire contenant les stats
+    logbook_filename = LOGBOOK_PATH + "logbook_stats/logbook_stats_gpcoef_" + dataset + ".pickle"
+    pickle.dump(stats_dic, open(logbook_filename, 'w'))
+
+    # Sauvegarde du logbook
+    logbook_filename = LOGBOOK_PATH + "logbook_gp/logbook_gpcoef_" + dataset + ".pickle"
+    pickle.dump(logbook, open(logbook_filename, 'w'))
+
+
 def stats_run(dataset):
+    # On fusionne les logbooks des 5-folds pour la GP avec opti des coefs
+    merge_logbook_folds(dataset)
+
     # Creation de la figure MSE et size (en fonction du nombre d'evaluations)
     run = "load_logbooks_gp(\"" + dataset + "\")"
     logbook_dic = eval(run)
